@@ -1,0 +1,22 @@
+{
+  "name": "ehr-ai-backend",
+  "version": "1.0.0",
+  "description": "Backend for EHR AI integration",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.22.1",
+    "multer": "^1.4.4",
+    "openai": "^4.104.0",
+    "uuid": "^9.0.1",
+    "wavesurfer.js": "^7.12.1"
+  }
+}
