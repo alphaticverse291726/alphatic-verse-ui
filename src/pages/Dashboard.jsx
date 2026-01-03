@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Card from "../components/Card";
 import {
   BarChart,
@@ -14,8 +14,6 @@ import {
 } from "recharts";
 
 /* ================= MOCK DATA ================= */
-
-// Inpatient vs Outpatient (Weekly)
 const weeklyPatients = [
   { day: "Mon", inpatient: 22, outpatient: 30 },
   { day: "Tue", inpatient: 28, outpatient: 40 },
@@ -26,7 +24,6 @@ const weeklyPatients = [
   { day: "Sun", inpatient: 20, outpatient: 35 },
 ];
 
-// Age groups
 const ageGroups = [
   { name: "<18 years", value: 14 },
   { name: "18–30 years", value: 34 },
@@ -37,13 +34,14 @@ const ageGroups = [
 const COLORS = ["#ff2d95", "#7f3cff", "#ff77c6", "#b084ff"];
 
 export default function Dashboard() {
-  // State for interactive To-Do List
   const [tasks, setTasks] = useState([
     { id: 1, text: "Review lab reports", completed: false },
     { id: 2, text: "Follow-up critical patients", completed: false },
     { id: 3, text: "Update medication charts", completed: false },
     { id: 4, text: "Approve discharge summary", completed: false },
   ]);
+
+  const [todayAppointments, setTodayAppointments] = useState([]);
 
   // Toggle task completed state
   const toggleTask = (id) => {
@@ -53,6 +51,17 @@ export default function Dashboard() {
       )
     );
   };
+
+  useEffect(() => {
+    // Get today's date
+    const today = new Date();
+    const key = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+
+    // Load booked appointments from localStorage
+    const booked = JSON.parse(localStorage.getItem("bookedAppointments")) || {};
+
+    setTodayAppointments(booked[key] || []);
+  }, []);
 
   return (
     <div className="space-y-14">
@@ -85,13 +94,17 @@ export default function Dashboard() {
 
         {/* Today’s Appointments */}
         <Card title="Today’s Appointments">
-          <p className="font-semibold text-sm">12 Patients Scheduled</p>
-          <ul className="mt-3 space-y-2 text-sm opacity-85">
-            <li>09:00 — John Mathew</li>
-            <li>10:30 — Aisha Rahman</li>
-            <li>12:00 — Ravi Kumar</li>
-            <li>15:00 — Fatima Noor</li>
-          </ul>
+          {todayAppointments.length > 0 ? (
+            <ul className="mt-3 space-y-2 text-sm opacity-85">
+              {todayAppointments.map((appt, idx) => (
+                <li key={idx}>
+                  {appt.time ? `${appt.time} — ${appt.patient}` : `${appt.patient} (Time not assigned)`}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm opacity-70">No appointments scheduled for today.</p>
+          )}
         </Card>
 
         {/* Pending Lab Reports */}
@@ -107,78 +120,55 @@ export default function Dashboard() {
       </div>
 
       {/* ===== WEEKLY REPORT ===== */}
-<div className="space-y-8">
-  <h3 className="text-3xl font-semibold">Weekly Patient Analytics</h3>
+      <div className="space-y-8">
+        <h3 className="text-3xl font-semibold">Weekly Patient Analytics</h3>
 
-  <div className="grid grid-cols-2 gap-6">
-    {/* DOUBLE BAR GRAPH */}
-    <Card title="Inpatients vs Outpatients (Weekly)">
-      <div className="h-72">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={weeklyPatients}>
-            <XAxis dataKey="day" stroke="#aaa" />
-            <YAxis stroke="#aaa" />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "#111",
-                border: "1px solid #333",
-                color: "#fff",
-              }}
-            />
-            <Legend />
-            <Bar
-              dataKey="inpatient"
-              name="Inpatients"
-              fill="#ff2d95"
-              radius={[6, 6, 0, 0]}
-            />
-            <Bar
-              dataKey="outpatient"
-              name="Outpatients"
-              fill="#7f3cff"
-              radius={[6, 6, 0, 0]}
-            />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-    </Card>
+        <div className="grid grid-cols-2 gap-6">
+          {/* DOUBLE BAR GRAPH */}
+          <Card title="Inpatients vs Outpatients (Weekly)">
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={weeklyPatients}>
+                  <XAxis dataKey="day" stroke="#aaa" />
+                  <YAxis stroke="#aaa" />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: "#111", border: "1px solid #333", color: "#fff" }}
+                  />
+                  <Legend />
+                  <Bar dataKey="inpatient" name="Inpatients" fill="#ff2d95" radius={[6,6,0,0]} />
+                  <Bar dataKey="outpatient" name="Outpatients" fill="#7f3cff" radius={[6,6,0,0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
 
-    {/* PIE CHART */}
-    <Card title="Patient Age Group Distribution">
-      <div className="h-72">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={ageGroups}
-              dataKey="value"
-              nameKey="name"
-              cx="50%"
-              cy="50%"
-              outerRadius={95}
-              label
-            >
-              {ageGroups.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={COLORS[index % COLORS.length]}
-                />
-              ))}
-            </Pie>
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "#111",
-                border: "1px solid #333",
-                color: "#fff",
-              }}
-            />
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
-      </div>
-    </Card>
-  </div>
-
-
+          {/* PIE CHART */}
+          <Card title="Patient Age Group Distribution">
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={ageGroups}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={95}
+                    label
+                  >
+                    {ageGroups.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{ backgroundColor: "#111", border: "1px solid #333", color: "#fff" }}
+                  />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+        </div>
 
         {/* MEDICAL STOCKING */}
         <Card title="Medical Stocking Status">
