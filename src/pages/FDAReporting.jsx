@@ -1,119 +1,52 @@
 import React, { useState } from "react";
 
 export default function FDAReporting() {
-  const [form, setForm] = useState({
-    patientInitials: "",
-    age: "",
-    gender: "",
-    suspectDrug: "",
-    indication: "",
-    reaction: "",
-    seriousness: "",
-    outcome: "",
-    reporter: "",
-  });
-
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = () => {
-    const pvReports = JSON.parse(localStorage.getItem("pvReports")) || [];
-    localStorage.setItem(
-      "pvReports",
-      JSON.stringify([...pvReports, { ...form, date: new Date().toISOString() }])
-    );
-    alert("ADR submitted to Pharmacovigilance system");
+    // Switch to success card
+    setSubmitted(true);
   };
 
-  // Common input classes
-  const inputClass =
-    "w-full p-3 rounded-lg bg-black text-white placeholder-gray-400 border border-purple-500/30";
-
   return (
-    <div className="min-h-screen bg-black text-white p-8">
-      <h1 className="text-2xl font-bold mb-6">
-        FDA / ICH Adverse Drug Reaction Report
-      </h1>
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-black to-gray-900 flex items-center justify-center px-4">
+      {!submitted ? (
+        // Query Card
+        <div className="bg-gray-900/90 backdrop-blur-md rounded-2xl shadow-2xl p-8 max-w-xl w-full text-white">
+          <h1 className="text-2xl font-bold text-center mb-6">
+            FDA / ICH ADR Report
+          </h1>
 
-      <div className="max-w-3xl bg-white/5 rounded-xl p-6 grid gap-4">
-        <input
-          name="patientInitials"
-          placeholder="Patient Initials"
-          onChange={handleChange}
-          className={inputClass}
-        />
+          <textarea
+            value={`Patient: John Doe
+Age: 38
+Gender: Male
+Suspect Drug: Aspirin
+Indication: Chest pain
+Reaction: Mild nausea and dizziness
+Seriousness: Non-Serious
+Outcome: Recovered
+Reporter: Dr. A. Smith, MD`}
+            readOnly
+            className="w-full p-4 rounded-xl bg-gray-800 text-white placeholder-gray-400 border border-purple-500/30 focus:border-purple-500 focus:ring focus:ring-purple-500/20 transition h-60"
+          />
 
-        <input
-          name="age"
-          placeholder="Age"
-          onChange={handleChange}
-          className={inputClass}
-        />
-
-        <select
-          name="gender"
-          onChange={handleChange}
-          className={inputClass}
-        >
-          <option value="">Gender</option>
-          <option>Male</option>
-          <option>Female</option>
-        </select>
-
-        <input
-          name="suspectDrug"
-          placeholder="Suspect Drug"
-          onChange={handleChange}
-          className={inputClass}
-        />
-
-        <input
-          name="indication"
-          placeholder="Indication"
-          onChange={handleChange}
-          className={inputClass}
-        />
-
-        <textarea
-          name="reaction"
-          placeholder="Adverse Reaction Description"
-          onChange={handleChange}
-          className={`${inputClass} h-24`}
-        />
-
-        <select
-          name="seriousness"
-          onChange={handleChange}
-          className={inputClass}
-        >
-          <option value="">Seriousness</option>
-          <option>Non-Serious</option>
-          <option>Hospitalization</option>
-          <option>Life Threatening</option>
-          <option>Death</option>
-        </select>
-
-        <input
-          name="outcome"
-          placeholder="Outcome"
-          onChange={handleChange}
-          className={inputClass}
-        />
-
-        <input
-          name="reporter"
-          placeholder="Reporter Name & Qualification"
-          onChange={handleChange}
-          className={inputClass}
-        />
-
-        <button
-          onClick={handleSubmit}
-          className="bg-pink-500 hover:bg-pink-600 py-2 rounded-lg font-semibold"
-        >
-          Submit ADR Report
-        </button>
-      </div>
+          <button
+            onClick={handleSubmit}
+            className="mt-4 w-full bg-purple-600 hover:bg-purple-700 py-3 rounded-xl font-semibold transition"
+          >
+            Submit Report
+          </button>
+        </div>
+      ) : (
+        // Success Card
+        <div className="bg-green-600/90 backdrop-blur-md rounded-2xl shadow-2xl p-8 max-w-md w-full text-white text-center">
+          <h1 className="text-2xl font-bold mb-4">✅ Report Submitted</h1>
+          <p className="text-white text-lg">
+            The ADR report has been successfully submitted to the Pharmacovigilance system.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

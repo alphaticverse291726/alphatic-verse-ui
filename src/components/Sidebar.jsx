@@ -6,6 +6,7 @@ const menu = [
   { name: "Appointments", path: "/appointments" },
   { name: "ADR Reporting", path: "/fda-reporting" }, // ✅ NEW
   { name: "Clinic Analytics", path: "/analytics" },
+  { name: "Nurse Dashboard", path: "/nurse-dashboard" }
   
 ];
 

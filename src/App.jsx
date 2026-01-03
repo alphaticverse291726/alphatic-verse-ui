@@ -12,6 +12,7 @@ import Appointments from "./pages/Appointments";
 import Revenue from "./pages/Revenue";
 import FDAReporting from "./pages/FDAReporting";
 import DoctorReview from "./components/ehr/DoctorReview";
+import BookAppointments from "./pages/BookAppointments";
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
             <Route path="/appointments" element={<Appointments />} />
             <Route path="/fda-reporting" element={<FDAReporting />} />
             <Route path="/ehr/review" element={<DoctorReview />} />
+            <Route path="/nurse-dashboard" element={<BookAppointments />} />
 
           </Routes>
         </main>

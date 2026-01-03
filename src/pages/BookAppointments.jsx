@@ -1,23 +1,28 @@
 import { useState, useEffect } from "react";
-import { ClipboardCheck, Clock, AlertTriangle } from "lucide-react";
 
-export default function Appointments() {
-  const [month, setMonth] = useState(new Date().getMonth()); // current month
+export default function BookAppointments() {
+  const [month, setMonth] = useState(new Date().getMonth());
   const [year, setYear] = useState(new Date().getFullYear());
   const [selectedDate, setSelectedDate] = useState(null);
-  const [checkedAppointments, setCheckedAppointments] = useState([]);
-  const [appointments, setAppointments] = useState({}); // All appointments
+  const [appointments, setAppointments] = useState({});
+  const [time, setTime] = useState("");
+  const [selectedPatient, setSelectedPatient] = useState("");
+
+  // Mock data for patients per date
+  const mockAppointments = {
+    "2026-1-5": [{ patient: "John Doe" }, { patient: "Maria Smith" }],
+    "2026-1-12": [{ patient: "Abdul Rahman" }],
+    "2026-1-18": [{ patient: "Linda George" }, { patient: "Mark Lee" }],
+  };
 
   useEffect(() => {
-    // Load saved appointments from localStorage (set in BookAppointments)
-    const saved = JSON.parse(localStorage.getItem("bookedAppointments")) || {};
-    setAppointments(saved);
+    // Load initial appointments
+    setAppointments(mockAppointments);
   }, []);
 
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstDay = new Date(year, month, 1).getDay();
 
-  // Dates that have appointments
   const appointmentDates = Object.keys(appointments)
     .filter((key) => {
       const [y, m] = key.split("-");
@@ -28,18 +33,13 @@ export default function Appointments() {
   const key = selectedDate ? `${year}-${month + 1}-${selectedDate}` : null;
   const todaysAppointments = key ? appointments[key] || [] : [];
 
-  const toggleCheck = (index) => {
-    setCheckedAppointments((prev) =>
-      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
-    );
-  };
-
   const prevMonth = () => {
     if (month === 0) {
       setMonth(11);
       setYear(year - 1);
     } else setMonth(month - 1);
     setSelectedDate(null);
+    setSelectedPatient("");
   };
 
   const nextMonth = () => {
@@ -48,11 +48,35 @@ export default function Appointments() {
       setYear(year + 1);
     } else setMonth(month + 1);
     setSelectedDate(null);
+    setSelectedPatient("");
+  };
+
+  const assignTime = () => {
+    if (!selectedPatient || !time) return alert("Select patient and time");
+
+    // Check if time already assigned
+    if (todaysAppointments.find((a) => a.time === time)) {
+      return alert("Time slot already assigned for this date!");
+    }
+
+    // Update patient with time
+    const updatedAppointments = todaysAppointments.map((a) =>
+      a.patient === selectedPatient ? { ...a, time } : a
+    );
+
+    const updated = { ...appointments, [key]: updatedAppointments };
+    setAppointments(updated);
+    localStorage.setItem("bookedAppointments", JSON.stringify(updated));
+
+    setTime("");
+    setSelectedPatient("");
   };
 
   return (
     <div className="min-h-screen bg-black text-white p-8">
-      <h2 className="text-3xl font-bold mb-8 flex items-center gap-2">📅 Session Calendar</h2>
+      <h2 className="text-3xl font-bold mb-8 flex items-center gap-2">
+        📅 Book Appointments
+      </h2>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
@@ -75,15 +99,15 @@ export default function Appointments() {
             {Array.from({ length: daysInMonth }, (_, i) => {
               const date = i + 1;
               const isSelected = selectedDate === date;
-              const hasAppt = appointmentDates.includes(date);
+              const hasAppointment = appointmentDates.includes(date);
 
               return (
                 <div
                   key={date}
-                  onClick={() => setSelectedDate(date)}
+                  onClick={() => { setSelectedDate(date); setSelectedPatient(""); setTime(""); }}
                   className={`calendar-cell
                     ${isSelected ? "calendar-selected" : ""}
-                    ${hasAppt ? "calendar-appt" : ""}
+                    ${hasAppointment ? "calendar-appt" : ""}
                   `}
                 >
                   {date}
@@ -93,7 +117,7 @@ export default function Appointments() {
           </div>
         </div>
 
-        {/* ===== APPOINTMENTS FOR SELECTED DATE ===== */}
+        {/* ===== PATIENT LIST + TIME ASSIGNMENT ===== */}
         <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur">
           <h3 className="text-xl font-semibold mb-4">
             {selectedDate
@@ -101,43 +125,48 @@ export default function Appointments() {
               : "Select a date to view patients"}
           </h3>
 
-          <div className="space-y-3">
-            {selectedDate && todaysAppointments.length > 0 ? (
-              todaysAppointments.map((appt, idx) => {
-                const checked = checkedAppointments.includes(idx);
-                return (
-                  <label
-                    key={idx}
-                    className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition
-                      ${checked ? "bg-white/10" : "bg-white/5 hover:bg-white/10"}`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      onChange={() => toggleCheck(idx)}
-                      className="accent-pink-500 w-4 h-4"
-                    />
-                    <span className={`transition ${checked ? "line-through opacity-50" : "opacity-90"}`}>
-                      {appt.time ? `${appt.time} – ${appt.patient}` : `${appt.patient} (Time not assigned)`}
-                    </span>
-                  </label>
-                );
-              })
-            ) : selectedDate ? (
-              <p className="opacity-70">No patients booked for this date.</p>
-            ) : null}
-          </div>
-        </div>
-      </div>
+          {selectedDate && todaysAppointments.length > 0 ? (
+            <div className="space-y-3 mb-4">
+              {todaysAppointments.map((appt, idx) => (
+                <div key={idx} className="bg-gray-900/70 p-3 rounded-xl flex justify-between items-center">
+                  <span>{appt.patient}</span>
+                  <span className="opacity-70">{appt.time || "Time not assigned"}</span>
+                </div>
+              ))}
+            </div>
+          ) : selectedDate ? (
+            <p className="opacity-70 mb-4">No patients booked for this date.</p>
+          ) : null}
 
-      {/* ===== STATUS ===== */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur mt-8">
-        <h3 className="text-xl font-semibold mb-6">Patient Appointment Status</h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <StatusCard icon={<ClipboardCheck className="text-green-400" />} title="Review" count="12 Patients" />
-          <StatusCard icon={<Clock className="text-yellow-400" />} title="Pending" count="7 Patients" />
-          <StatusCard icon={<AlertTriangle className="text-red-500" />} title="Critical" count="3 Patients" />
+          {/* Assign Time Form */}
+          {selectedDate && todaysAppointments.length > 0 && (
+            <div className="flex gap-2 items-center">
+              <select
+                value={selectedPatient}
+                onChange={(e) => setSelectedPatient(e.target.value)}
+                className="p-3 rounded-lg bg-gray-800 text-white border border-purple-500/30 flex-1"
+              >
+                <option value="">Select Patient</option>
+                {todaysAppointments
+                  .filter((a) => !a.time)
+                  .map((a, idx) => (
+                    <option key={idx} value={a.patient}>{a.patient}</option>
+                  ))}
+              </select>
+              <input
+                type="time"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                className="p-3 rounded-lg bg-gray-800 text-white border border-purple-500/30"
+              />
+              <button
+                onClick={assignTime}
+                className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg font-semibold"
+              >
+                Assign Time
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -184,18 +213,6 @@ export default function Appointments() {
           bottom: 6px;
         }
       `}</style>
-    </div>
-  );
-}
-
-function StatusCard({ icon, title, count }) {
-  return (
-    <div className="bg-white/5 border border-white/10 rounded-xl p-6 flex items-center gap-4">
-      <div className="text-3xl">{icon}</div>
-      <div>
-        <p className="text-lg font-semibold">{title}</p>
-        <p className="opacity-70">{count}</p>
-      </div>
     </div>
   );
 }
