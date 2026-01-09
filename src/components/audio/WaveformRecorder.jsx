@@ -1,3 +1,4 @@
+import { transcribeAudio, generateFHIR } from "../../hooks/useEHRApi";
 import { useEffect, useRef } from "react";
 import WaveSurfer from "wavesurfer.js";
 

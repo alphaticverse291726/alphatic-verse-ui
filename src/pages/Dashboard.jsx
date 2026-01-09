@@ -31,7 +31,15 @@ const ageGroups = [
   { name: ">50 years", value: 20 },
 ];
 
-const COLORS = ["#ff2d95", "#7f3cff", "#ff77c6", "#b084ff"];
+const COLORS = ["#FF2D95", "#7F3CFF", "#FF77C6", "#B084FF"];
+
+const pendingReports = [
+  { id: 1, patient: "Arun S.", tests: ["CBC", "ESR"] },
+  { id: 2, patient: "Meera K.", tests: ["Lipid Profile"] },
+  { id: 3, patient: "Salman H.", tests: ["MRI Brain"] },
+  { id: 4, patient: "Divya R.", tests: ["HbA1c"] },
+  { id: 5, patient: "Joseph T.", tests: ["CT Abdomen"] },
+];
 
 export default function Dashboard() {
   const [tasks, setTasks] = useState([
@@ -42,108 +50,163 @@ export default function Dashboard() {
   ]);
 
   const [todayAppointments, setTodayAppointments] = useState([]);
+  const [expandedReport, setExpandedReport] = useState(null);
 
-  // Toggle task completed state
   const toggleTask = (id) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
+    setTasks((prev) =>
+      prev.map((task) =>
+        task.id === id
+          ? { ...task, completed: !task.completed }
+          : task
       )
     );
   };
 
   useEffect(() => {
-    // Get today's date
     const today = new Date();
     const key = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
-
-    // Load booked appointments from localStorage
-    const booked = JSON.parse(localStorage.getItem("bookedAppointments")) || {};
-
+    const booked =
+      JSON.parse(localStorage.getItem("bookedAppointments")) || {};
     setTodayAppointments(booked[key] || []);
   }, []);
 
   return (
-    <div className="space-y-14">
-      {/* ===== HEADER ===== */}
+    <div className="space-y-16">
+      {/* ================= HEADER ================= */}
       <div>
-        <h2 className="text-4xl font-bold">Hi Dr. Linn!</h2>
-        <p className="mt-3 text-base opacity-85">
-          Welcome to AlphaTIC Verse — your unified medical intelligence platform
+        <h2 className="text-5xl font-extrabold tracking-tight bg-gradient-to-r from-violet-400 to-pink-500 bg-clip-text text-transparent">
+          Hi Dr. Linn
+        </h2>
+        <p className="mt-3 text-lg font-medium text-neutral-400">
+          AlphaTIC Verse — Unified Medical Intelligence Platform
         </p>
       </div>
 
-      {/* ===== TOP CARDS ===== */}
-      <div className="grid grid-cols-3 gap-6">
-        {/* Interactive To-Do List */}
-        <Card title="To-Do List">
-          <ul className="space-y-3 text-sm">
+      {/* ================= TOP CARDS ================= */}
+      <div className="grid grid-cols-3 gap-8">
+        {/* ===== TODAY'S TASKS ===== */}
+        <Card title="Today's Tasks">
+          <div className="space-y-4">
             {tasks.map((task) => (
-              <li
+              <div
                 key={task.id}
-                className={`cursor-pointer select-none ${
-                  task.completed ? "line-through opacity-50" : ""
-                }`}
                 onClick={() => toggleTask(task.id)}
+                className={`group cursor-pointer rounded-xl border p-4 transition-all duration-300
+                  ${
+                    task.completed
+                      ? "border-neutral-700 bg-neutral-900/60 opacity-60"
+                      : "border-neutral-700 bg-neutral-900 hover:border-violet-500 hover:shadow-lg hover:shadow-violet-500/20"
+                  }
+                `}
               >
-                {task.completed ? "✔ " : "◻ "} {task.text}
-              </li>
+                <div
+                  className={`flex items-center gap-3 font-semibold transition-all duration-300
+                    ${
+                      task.completed
+                        ? "line-through text-neutral-500"
+                        : "text-neutral-200 group-hover:text-violet-400 group-hover:text-lg"
+                    }
+                  `}
+                >
+                  <span className="text-xl transition-transform duration-300 group-hover:scale-110">
+                    {task.completed ? "✔" : "◻"}
+                  </span>
+                  {task.text}
+                </div>
+              </div>
             ))}
-          </ul>
+          </div>
         </Card>
 
-        {/* Today’s Appointments */}
-        <Card title="Today’s Appointments">
-          {todayAppointments.length > 0 ? (
-            <ul className="mt-3 space-y-2 text-sm opacity-85">
-              {todayAppointments.map((appt, idx) => (
-                <li key={idx}>
-                  {appt.time ? `${appt.time} — ${appt.patient}` : `${appt.patient} (Time not assigned)`}
+        {/* ===== APPOINTMENTS ===== */}
+        <Card title="Today's Appointments">
+          {todayAppointments.length ? (
+            <ul className="space-y-2 text-sm font-medium text-neutral-300">
+              {todayAppointments.map((appt, i) => (
+                <li key={i}>
+                  {appt.time
+                    ? `${appt.time} — ${appt.patient}`
+                    : `${appt.patient} (Time pending)`}
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-sm opacity-70">No appointments scheduled for today.</p>
+            <p className="text-sm text-neutral-500">
+              No appointments scheduled today
+            </p>
           )}
         </Card>
 
-        {/* Pending Lab Reports */}
+        {/* ===== LAB REPORTS ===== */}
         <Card title="Pending Lab Reports">
-          <ul className="space-y-3 text-sm">
-            <li><b>Arun S.</b> — CBC, ESR</li>
-            <li><b>Meera K.</b> — Lipid Profile</li>
-            <li><b>Salman H.</b> — MRI Brain</li>
-            <li><b>Divya R.</b> — HbA1c</li>
-            <li><b>Joseph T.</b> — CT Abdomen</li>
-          </ul>
+          <div className="space-y-3">
+            {pendingReports.map((report) => (
+              <div
+                key={report.id}
+                onClick={() =>
+                  setExpandedReport(
+                    expandedReport === report.id ? null : report.id
+                  )
+                }
+                className="cursor-pointer rounded-xl border border-neutral-700 p-3 transition hover:border-violet-500 hover:bg-neutral-800"
+              >
+                <div className="flex justify-between font-semibold text-neutral-200">
+                  <span>📄 {report.patient}</span>
+                  <span className="text-xs text-violet-400">
+                    {expandedReport === report.id ? "Hide" : "View"}
+                  </span>
+                </div>
+
+                {expandedReport === report.id && (
+                  <ul className="mt-2 ml-5 list-disc text-sm text-neutral-400">
+                    {report.tests.map((test, i) => (
+                      <li key={i}>{test}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ))}
+          </div>
         </Card>
       </div>
 
-      {/* ===== WEEKLY REPORT ===== */}
-      <div className="space-y-8">
-        <h3 className="text-3xl font-semibold">Weekly Patient Analytics</h3>
+      {/* ================= ANALYTICS ================= */}
+      <div className="space-y-10">
+        <h3 className="text-3xl font-bold tracking-tight text-neutral-200">
+          Weekly Patient Analytics
+        </h3>
 
-        <div className="grid grid-cols-2 gap-6">
-          {/* DOUBLE BAR GRAPH */}
-          <Card title="Inpatients vs Outpatients (Weekly)">
+        <div className="grid grid-cols-2 gap-8">
+          <Card title="Inpatients vs Outpatients">
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={weeklyPatients}>
                   <XAxis dataKey="day" stroke="#aaa" />
                   <YAxis stroke="#aaa" />
                   <Tooltip
-                    contentStyle={{ backgroundColor: "#111", border: "1px solid #333", color: "#fff" }}
+                    contentStyle={{
+                      backgroundColor: "#111",
+                      border: "1px solid #333",
+                      color: "#fff",
+                    }}
                   />
                   <Legend />
-                  <Bar dataKey="inpatient" name="Inpatients" fill="#ff2d95" radius={[6,6,0,0]} />
-                  <Bar dataKey="outpatient" name="Outpatients" fill="#7f3cff" radius={[6,6,0,0]} />
+                  <Bar
+                    dataKey="inpatient"
+                    fill="#FF2D95"
+                    radius={[6, 6, 0, 0]}
+                  />
+                  <Bar
+                    dataKey="outpatient"
+                    fill="#7F3CFF"
+                    radius={[6, 6, 0, 0]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </Card>
 
-          {/* PIE CHART */}
-          <Card title="Patient Age Group Distribution">
+          <Card title="Patient Age Distribution">
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -156,12 +219,16 @@ export default function Dashboard() {
                     outerRadius={95}
                     label
                   >
-                    {ageGroups.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    {ageGroups.map((_, i) => (
+                      <Cell key={i} fill={COLORS[i]} />
                     ))}
                   </Pie>
                   <Tooltip
-                    contentStyle={{ backgroundColor: "#111", border: "1px solid #333", color: "#fff" }}
+                    contentStyle={{
+                      backgroundColor: "#111",
+                      border: "1px solid #333",
+                      color: "#fff",
+                    }}
                   />
                   <Legend />
                 </PieChart>
@@ -170,15 +237,15 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        {/* MEDICAL STOCKING */}
-        <Card title="Medical Stocking Status">
-          <div className="grid grid-cols-3 gap-4 text-sm">
-            <div>✔ Paracetamol</div>
-            <div>✔ Antibiotics</div>
-            <div>✔ IV Fluids</div>
-            <div>✔ Insulin</div>
-            <div className="text-yellow-400">⚠ Low — PPE Kits</div>
-            <div className="text-yellow-400">⚠ Low — Oxygen Masks</div>
+        {/* ===== STOCK ===== */}
+        <Card title="Medical Stock Status">
+          <div className="grid grid-cols-3 gap-4 text-sm font-medium">
+            <div className="text-emerald-400">✔ Paracetamol</div>
+            <div className="text-emerald-400">✔ Antibiotics</div>
+            <div className="text-emerald-400">✔ IV Fluids</div>
+            <div className="text-emerald-400">✔ Insulin</div>
+            <div className="text-yellow-400">⚠ PPE Kits Low</div>
+            <div className="text-yellow-400">⚠ Oxygen Masks Low</div>
           </div>
         </Card>
       </div>

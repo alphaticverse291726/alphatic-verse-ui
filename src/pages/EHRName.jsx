@@ -3,6 +3,10 @@ import { useNavigate } from "react-router-dom";
 
 const patientsList = ["Robert", "Linna", "Tina", "Rina"];
 
+// 🔥 BACKEND URL (CHANGE ONLY IF DEPLOYED)
+const BACKEND_URL = "https://didactic-dollop-4j5jgp497vrpcj4g7-8001.app.github.dev";
+;
+
 export default function EHRName() {
   const navigate = useNavigate();
   const [selectedPatient, setSelectedPatient] = useState("");
@@ -18,28 +22,41 @@ export default function EHRName() {
   const handlePatientSelect = (name) => setSelectedPatient(name);
 
   // ================= Prescription =================
-  const handlePrescriptionChange = (e) => setPrescription(e.target.value);
+  const handlePrescriptionChange = (e) =>
+    setPrescription(e.target.value);
+
   const handlePrescriptionSave = () => {
     alert(`Prescription saved for ${selectedPatient}:\n${prescription}`);
     setPrescription("");
   };
 
   // ================= Audio Recording =================
-  const startRecording = async () => {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const mediaRecorder = new MediaRecorder(stream);
-    mediaRecorderRef.current = mediaRecorder;
-    audioChunksRef.current = [];
+ const startRecording = async () => {
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-    mediaRecorder.ondataavailable = (e) => audioChunksRef.current.push(e.data);
-    mediaRecorder.onstop = () => {
-      const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
-      setAudioBlob(blob);
-    };
+  const mediaRecorder = new MediaRecorder(stream, {
+    mimeType: "audio/webm;codecs=opus", // ✅ REQUIRED
+  });
 
-    mediaRecorder.start();
-    setRecording(true);
+  mediaRecorderRef.current = mediaRecorder;
+  audioChunksRef.current = [];
+
+  mediaRecorder.ondataavailable = (e) => {
+    if (e.data.size > 0) {
+      audioChunksRef.current.push(e.data);
+    }
   };
+
+  mediaRecorder.onstop = () => {
+    const blob = new Blob(audioChunksRef.current, {
+      type: "audio/webm",
+    });
+    setAudioBlob(blob);
+  };
+
+  mediaRecorder.start();
+  setRecording(true);
+};
 
   const stopRecording = () => {
     mediaRecorderRef.current.stop();
@@ -48,32 +65,40 @@ export default function EHRName() {
 
   // ================= Generate EHR =================
   const handleGenerateEHR = async () => {
-    if (!audioBlob) return alert("Please record audio first.");
+    if (!audioBlob) {
+      alert("Please record audio first.");
+      return;
+    }
+
     setLoading(true);
 
     const formData = new FormData();
     formData.append("audio", audioBlob, "recording.webm");
 
     try {
-      const response = await fetch("http://localhost:5000/api/generate-ehr", {
-  method: "POST",
-  body: formData,
-});
+      const response = await fetch(
+        `${BACKEND_URL}/api/generate-ehr`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
-      
+      if (!response.ok) {
+        throw new Error("Failed to generate EHR");
+      }
 
-      const data = await res.json();
+      const data = await response.json(); // ✅ FIXED
 
-      // Save prescription if exists
       const ehrData = {
         ...data,
         patientName: selectedPatient,
         prescription: prescription || "No medication entered",
       };
 
-      // Save to localStorage
       const existing =
         JSON.parse(localStorage.getItem("ehrRecords")) || [];
+
       localStorage.setItem(
         "ehrRecords",
         JSON.stringify([...existing, ehrData])
@@ -82,23 +107,27 @@ export default function EHRName() {
       navigate("/ehr/report", { state: ehrData });
     } catch (err) {
       console.error(err);
-      alert("Error generating EHR");
+      alert("Failed to generate EHR");
     } finally {
       setLoading(false);
     }
   };
 
+  // ================= UI (UNCHANGED) =================
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-white p-8 gap-8">
 
-      {/* ================= Patient Selection ================= */}
       {!selectedPatient && (
         <div className="flex flex-col items-center gap-6">
           <h2 className="text-4xl font-bold text-center">Select a Patient</h2>
-          <p className="text-gray-300 text-lg">Choose a patient to start generating EHR</p>
+          <p className="text-gray-300 text-lg">
+            Choose a patient to start generating EHR
+          </p>
 
           <div className="bg-gray-800 border border-purple-500/40 rounded-2xl shadow-lg p-6 mt-4 w-64">
-            <h3 className="text-xl font-semibold mb-4 text-center">Patient List</h3>
+            <h3 className="text-xl font-semibold mb-4 text-center">
+              Patient List
+            </h3>
             <div className="flex flex-col gap-3">
               {patientsList.map((patient) => (
                 <button
@@ -114,15 +143,11 @@ export default function EHRName() {
         </div>
       )}
 
-      {/* ================= EHR Workspace ================= */}
       {selectedPatient && (
         <>
           <div className="flex flex-col md:flex-row gap-8 flex-1">
 
-            {/* Left Column: Recording & Controls */}
             <div className="relative flex-1 flex flex-col justify-center items-center bg-gray-800 border border-pink-500/40 rounded-2xl p-8 shadow-lg">
-
-              {/* Change Patient */}
               <button
                 onClick={() => setSelectedPatient("")}
                 className="absolute top-4 left-4 bg-purple-700 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg text-sm"
@@ -130,10 +155,11 @@ export default function EHRName() {
                 Change Patient
               </button>
 
-              {/* Microphone / Record */}
               <div className="text-pink-500 text-6xl mb-4 animate-pulse">🎤</div>
+
               <p className="text-lg opacity-80 mb-6 text-center">
-                Click to record EHR for <span className="font-semibold">{selectedPatient}</span>
+                Click to record EHR for{" "}
+                <span className="font-semibold">{selectedPatient}</span>
               </p>
 
               {!recording ? (
@@ -153,7 +179,11 @@ export default function EHRName() {
               )}
 
               {audioBlob && (
-                <audio controls src={URL.createObjectURL(audioBlob)} className="mb-4" />
+                <audio
+                  controls
+                  src={URL.createObjectURL(audioBlob)}
+                  className="mb-4"
+                />
               )}
 
               <button
@@ -165,10 +195,7 @@ export default function EHRName() {
               </button>
             </div>
 
-            {/* Right Column: Patient Data Cards */}
             <div className="flex-1 flex flex-col gap-6">
-
-              {/* Lab Report */}
               <div className="bg-gray-800 border border-purple-500/30 rounded-xl p-6 shadow-md">
                 <h3 className="text-xl font-semibold mb-3">Lab Report</h3>
                 <ul className="list-disc list-inside opacity-80 text-gray-200">
@@ -178,13 +205,13 @@ export default function EHRName() {
                 </ul>
               </div>
 
-              {/* Past Medical History */}
               <div className="bg-gray-800 border border-purple-500/30 rounded-xl p-6 shadow-md">
                 <h3 className="text-xl font-semibold mb-3">Past Medical</h3>
-                <p className="opacity-80 text-gray-200">No previous records found.</p>
+                <p className="opacity-80 text-gray-200">
+                  No previous records found.
+                </p>
               </div>
 
-              {/* Medication */}
               <div className="bg-gray-800 border border-purple-500/30 rounded-xl p-6 shadow-md">
                 <h3 className="text-xl font-semibold mb-3">Medication</h3>
                 <ul className="list-disc list-inside opacity-80 text-gray-200">
@@ -196,9 +223,10 @@ export default function EHRName() {
             </div>
           </div>
 
-          {/* ================= Bottom Section: E-Prescription ================= */}
           <div className="bg-gray-800 border border-purple-500/30 rounded-xl p-6 shadow-md flex flex-col gap-4">
-            <h3 className="text-xl font-semibold mb-2">E-Prescription for {selectedPatient}</h3>
+            <h3 className="text-xl font-semibold mb-2">
+              E-Prescription for {selectedPatient}
+            </h3>
 
             <textarea
               value={prescription}
