@@ -49,6 +49,29 @@ export default function EHRName() {
     },
   };
 
+  /* ================= MOCK LAB REPORTS / MEDICAL / MEDICATION ================= */
+  /* ================= MOCK LAB REPORTS ================= */
+const mockLabReports = [
+  { test: "CBC", date: "02-Jan-2026", result: "Normal" },
+  { test: "Blood Glucose", date: "02-Jan-2026", result: "110 mg/dL" },
+  { test: "Lipid Profile", date: "02-Jan-2026", result: "Borderline High" },
+];
+
+/* ================= MOCK PAST MEDICAL HISTORY ================= */
+const mockMedicalHistory = [
+  { condition: "Hypertension", status: "Controlled" },
+  { condition: "Type 2 Diabetes", status: "Monitoring" },
+  { condition: "Seasonal Allergies", status: "Intermittent" },
+];
+
+/* ================= MOCK MEDICATIONS ================= */
+const mockMedications = [
+  { drug: "Paracetamol", dose: "500mg", frequency: "Twice daily" },
+  { drug: "Aspirin", dose: "75mg", frequency: "Once daily" },
+  { drug: "Metformin", dose: "500mg", frequency: "Twice daily" },
+];
+
+
   /* ================= ACTIONS ================= */
   const startRecording = () => {
     setRecording(true);
@@ -107,50 +130,117 @@ export default function EHRName() {
           <>
             <div className="flex flex-col md:flex-row gap-8">
 
-              {/* RECORDING PANEL */}
-              <div className="flex-1 bg-white/15 backdrop-blur-xl border border-pink-500/30 rounded-2xl p-8 flex flex-col items-center justify-center relative">
-                <button
-                  onClick={() => setSelectedPatient("")}
-                  className="absolute top-4 left-4 text-sm bg-white/20 px-4 py-2 rounded-lg"
-                >
-                  Change Patient
-                </button>
+              {/* ================= RECORDING PANEL ================= */}
+<div className="flex-1 bg-white/15 backdrop-blur-xl border border-pink-500/30 rounded-2xl p-8 relative flex flex-col items-center justify-center space-y-6">
 
-                <div className="text-6xl animate-pulse mb-4">🎤</div>
-                <p className="opacity-80 mb-6">
-                  Recording for <b>{selectedPatient}</b>
-                </p>
+  {/* CHANGE PATIENT BUTTON */}
+  <button
+    onClick={() => setSelectedPatient("")}
+    className="absolute top-4 left-4 text-sm bg-white/20 px-4 py-2 rounded-lg"
+  >
+    Change Patient
+  </button>
 
-                {!recording ? (
-                  <button onClick={startRecording} className="bg-green-600 px-6 py-2 rounded-lg mb-3">
-                    Start Recording
-                  </button>
-                ) : (
-                  <button onClick={stopRecording} className="bg-red-600 px-6 py-2 rounded-lg mb-3">
-                    Stop Recording
-                  </button>
-                )}
+  {/* MIC ICON */}
+  <div className="text-8xl animate-pulse mb-2 text-center">
+    🎙️
+  </div>
 
-                <button
-                  onClick={handleGenerateEHR}
-                  disabled={loading || !audioBlob}
-                  className="bg-blue-600 px-6 py-2 rounded-lg disabled:opacity-50"
-                >
-                  {loading ? "AI Generating EHR..." : "Generate EHR"}
-                </button>
-              </div>
+  {/* MOCK RECORDING WAVEFORM */}
+  {recording && (
+    <div className="flex items-end justify-center gap-1 h-12 mb-4">
+      {[...Array(10)].map((_, i) => (
+        <span
+          key={i}
+          className="bg-green-400 w-1 rounded-sm animate-wave"
+          style={{ animationDelay: `${i * 0.1}s` }}
+        ></span>
+      ))}
+    </div>
+  )}
 
-              {/* SIDE PANELS (RESTORED) */}
+  <p className="opacity-80 text-lg text-center">
+    Recording for <b>{selectedPatient}</b>
+  </p>
+
+  {/* RECORD BUTTONS */}
+  <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full">
+    {!recording ? (
+      <button
+        className="bg-green-600 px-8 py-4 rounded-xl text-lg font-semibold shadow-lg"
+        onClick={startRecording}
+      >
+        Start Recording
+      </button>
+    ) : (
+      <button
+        className="bg-red-600 px-8 py-4 rounded-xl text-lg font-semibold shadow-lg"
+        onClick={stopRecording}
+      >
+        Stop Recording
+      </button>
+    )}
+
+    <button
+      onClick={handleGenerateEHR}
+      disabled={!audioBlob || recording}
+      className="bg-blue-600 px-8 py-4 rounded-xl text-lg font-semibold disabled:opacity-50 shadow-lg"
+    >
+      {loading ? "AI Generating..." : "Generate EHR"}
+    </button>
+  </div>
+
+  {/* ================= WAVE ANIMATION STYLE ================= */}
+  <style>{`
+    @keyframes wave {
+      0%, 100% { height: 25%; }
+      50% { height: 100%; }
+    }
+    .animate-wave {
+      animation: wave 1s infinite ease-in-out;
+    }
+  `}</style>
+</div>
+
+
+
+              {/* SIDE PANELS */}
               <div className="flex-1 flex flex-col gap-6">
-                {["Lab Report", "Past Medical", "Medication"].map((title) => (
-                  <div
-                    key={title}
-                    className="bg-white/15 backdrop-blur-xl border border-white/25 rounded-xl p-6"
-                  >
-                    <h3 className="text-lg font-semibold mb-2">{title}</h3>
-                    <p className="opacity-70 text-sm">Mock data available</p>
-                  </div>
-                ))}
+
+                {/* Lab Reports */}
+                <div className="bg-white/15 backdrop-blur-xl border border-white/25 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold mb-2">Lab Reports</h3>
+                  {mockLabReports.map((report, idx) => (
+                    <div key={idx} className="mb-2 text-sm opacity-80">
+                      <strong>{report.test}</strong> ({report.date})<br />
+                      Result: {report.result}<br />
+                      Status: <span className={report.status === "Normal" ? "text-green-400" : "text-yellow-400"}>{report.status}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Past Medical */}
+                <div className="bg-white/15 backdrop-blur-xl border border-white/25 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold mb-2">Past Medical History</h3>
+                  {mockMedicalHistory.map((item, idx) => (
+                    <div key={idx} className="mb-2 text-sm opacity-80">
+                      <strong>{item.condition}</strong> (Diagnosed: {item.diagnosed})<br />
+                      Status: {item.status}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Medication */}
+                <div className="bg-white/15 backdrop-blur-xl border border-white/25 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold mb-2">Medication</h3>
+                  {mockMedications.map((med, idx) => (
+                    <div key={idx} className="mb-2 text-sm opacity-80">
+                      <strong>{med.drug}</strong> – {med.dose}, {med.frequency} (Start: {med.startDate})<br />
+                      Indication: {med.indication}
+                    </div>
+                  ))}
+                </div>
+
               </div>
             </div>
 
@@ -179,91 +269,45 @@ export default function EHRName() {
 
 <h2>CONSULTATION SUMMARY</h2>
 
-Patient Name: John Doe<br></br>
-Patient ID: PT-CLINIC001-0001<br></br>
-Date of Birth: 12-May-1987<br></br>
-Age: 38<br></br>
-Gender: Male<br></br>
+Patient Name: {selectedPatient}<br />
+Patient ID: PT-CLINIC001-0001<br />
+Age: 38<br />
+Gender: Male<br />
 
-Clinic Name: Alphatic Health Clinic<br></br>
-Clinic Registration ID: CL-OM-45893<br></br>
-Treating Physician: Dr. Ravi Kumar<br></br>
-Medical Council Registration No: TNMC-123456<br></br>
-Digital Signature: ✔ Verified<br></br>
+Clinic Name: Alphatic Health Clinic<br />
+Clinic Registration ID: CL-OM-45893<br />
+Treating Physician: Dr. Ravi Kumar<br />
+Medical Council Registration No: TNMC-123456<br />
+Digital Signature: ✔ Verified<br />
 
-Encounter ID: ENC-2026-01-03-0021<br></br>
-Date & Time: 03-Jan-2026, 2:35 PM<br></br>
-Mode of Visit: In-Person<br></br>
+Encounter ID: ENC-2026-01-03-0021<br />
+Date & Time: 03-Jan-2026, 2:35 PM<br />
+Mode of Visit: In-Person<br />
 
-<br></br>
+<br />
 <h3>CHIEF COMPLAINT</h3>
-Headache for 2 days<br></br>
-(SNOMED CT: 25064002)<br></br>
+Headache for 2 days<br />
 
-<br></br>
+<br />
 <h3>VITALS</h3>
-✓ Blood Pressure: 120/80 mmHg (Normal)<br></br>
-✓ Heart Rate: 72 bpm (Normal)<br></br>
-✓ Temperature: 36.8°C<br></br>
-✓ SpO₂: 99%<br></br>
+✓ Blood Pressure: 120/80 mmHg<br />
+✓ Heart Rate: 72 bpm<br />
+✓ Temperature: 36.8°C<br />
+✓ SpO₂: 99%<br />
 
-<br></br>
+<br />
 <h3>CLINICAL ASSESSMENT</h3>
-Diagnosis: Tension Headache<br></br>
-ICD-10: R51<br></br>
-(Confidence: 89%)<br></br>
+Diagnosis: Tension Headache<br />
+ICD-10: R51<br />
+Confidence: 89%<br />
 
-<br></br>
-<h3>CLINICAL NOTES:</h3>
-No neurological deficits, vitals stable, no red-flag symptoms observed.<br></br>
-
-<br></br>
+<br />
 <h3>PRESCRIPTION</h3>
-Drug&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Dose&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Frequency&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Indication<br></br>
-Paracetamol&nbsp;&nbsp;500 mg&nbsp;&nbsp;&nbsp;&nbsp;Twice daily&nbsp;&nbsp;&nbsp;&nbsp;Headache<br></br>
-Aspirin&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;75 mg&nbsp;&nbsp;&nbsp;&nbsp;Once daily&nbsp;&nbsp;&nbsp;&nbsp;Cardiovascular prophylaxis<br></br>
-
-<br></br>
-Therapy Start Date: 01-Jan-2026<br></br>
-
-<br></br>
-<h3>INSURANCE CLAIM DETAILS</h3>
-Procedure Code: CPT 99213 – Office Visit<br></br>
-Linked Diagnosis: R51 – Tension Headache<br></br>
-Charge: ₹800<br></br>
-Medical Necessity: Neurological evaluation and vital-sign monitoring performed for acute headache.<br></br>
-Claim Status: Pending approval<br></br>
-
-<br></br>
-<h3>ADVERSE DRUG REACTION (AUTO-DETECTED BY AI)</h3>
-Follow-up Date: 05-Jan-2026<br></br>
-Patient Reported Symptom: Black stools<br></br>
-SNOMED CT: 62315008<br></br>
-Suspected Drug: Aspirin<br></br>
-Reaction: Gastrointestinal bleeding<br></br>
-Seriousness: Serious<br></br>
-Outcome: Not recovered<br></br>
-Causality Assessment: Probable<br></br>
-Reviewed and Confirmed by: Dr. Ravi Kumar<br></br>
-
-<br></br>
-<h3>PHARMACOVIGILANCE CASE (ICH-E2B READY)</h3>
-PV Case ID: PV-CLINIC001-00045<br></br>
-Patient Age: 38<br></br>
-Sex: Male<br></br>
-Reaction Term (MedDRA): Gastrointestinal haemorrhage<br></br>
-Suspect Drug: Aspirin 75 mg<br></br>
-Therapy Start Date: 01-Jan-2026<br></br>
-Reaction Onset: 05-Jan-2026<br></br>
-Outcome: Ongoing<br></br>
-Reporter: Dr. Ravi Kumar<br></br>
-Country of Occurrence: Oman<br></br>
-
-<br></br>
-<h3>AUDIT TRAIL</h3>
-Record Created: 03-Jan-2026, 14:36 – Dr. Ravi Kumar<br></br>
-AI Coding & Validation: 03-Jan-2026, 14:37 – Alphatic AI Engine<br></br>
-Physician Approval: 03-Jan-2026, 14:38 – Dr. Ravi Kumar<br></br>
+{mockMedications.map((med, idx) => (
+  <div key={idx}>
+    {med.drug} - {med.dose}, {med.frequency} (Indication: {med.indication})
+  </div>
+))}
 
 </pre>
 
