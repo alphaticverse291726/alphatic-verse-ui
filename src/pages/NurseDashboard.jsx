@@ -116,43 +116,82 @@ export default function NurseDashboard() {
         )}
 
         {/* ===== LAB REPORTS ===== */}
-        {activeTab === "labReports" && (
-          <div className="flex flex-col items-center space-y-10 py-16">
+{activeTab === "labReports" && (
+  <div className="flex flex-col items-center space-y-10 py-16">
 
-            <p className="text-lg text-white/80 mb-4">
-              Please upload the lab report to read
-            </p>
+  
 
-            <div className="relative w-full max-w-lg rounded-3xl p-12 text-center
-              bg-white/5 backdrop-blur-2xl border-2 border-dashed border-pink-400/60">
+    {/* Patient Selector */}
+    <div className="w-full max-w-lg space-y-2">
+      <label className="text-white/90 font-semibold">
+        Select Patient
+      </label>
+      <select
+        value={selectedPatient}
+        onChange={e => setSelectedPatient(e.target.value)}
+        className="w-full p-4 rounded-xl bg-black/40 text-white
+          border border-white/30 backdrop-blur-md
+          focus:outline-none focus:ring-2 focus:ring-pink-400"
+      >
+        <option value="" className="bg-black">
+          -- Choose Patient --
+        </option>
+        {patients.map(p => (
+          <option key={p.name} value={p.name} className="bg-black">
+            {p.name}
+          </option>
+        ))}
+      </select>
+    </div>
 
-              <UploadCloud className="w-14 h-14 mx-auto text-pink-400 mb-4" />
-              <h2 className="text-2xl font-bold mb-2">Upload Lab Reports</h2>
+    {/* Instruction */}
+    <p className="text-lg text-white/80 text-center">
+      Upload the lab report for the selected patient
+    </p>
 
-              <input
-                type="file"
-                onChange={handleFiles}
-                className="absolute inset-0 opacity-0 cursor-pointer"
-              />
-            </div>
+    {/* Upload Box */}
+    <div className={`relative w-full max-w-lg rounded-3xl p-12 text-center
+      bg-white/5 backdrop-blur-2xl border-2 border-dashed
+      ${selectedPatient
+        ? "border-pink-400/60"
+        : "border-white/20 opacity-50"
+      }`}
+    >
+      <UploadCloud className="w-16 h-16 mx-auto text-pink-400 mb-4" />
+      <h3 className="text-2xl font-bold mb-2">
+        Upload Lab Report
+      </h3>
+      <p className="text-white/70 text-sm">
+        PDF / TXT / Report Files
+      </p>
 
-            {abnormalValues.length > 0 && (
-              <div className="w-full max-w-lg rounded-2xl p-6
-                bg-white/5 backdrop-blur-xl border border-purple-400/40">
+      <input
+        type="file"
+        disabled={!selectedPatient}
+        onChange={handleFiles}
+        className="absolute inset-0 opacity-0 cursor-pointer"
+      />
+    </div>
 
-                <h3 className="text-xl font-bold mb-3 text-purple-300">
-                  🚨 Abnormal Lab Values
-                </h3>
+    {/* Abnormal Values */}
+    {abnormalValues.length > 0 && (
+      <div className="w-full max-w-lg rounded-2xl p-6
+        bg-white/5 backdrop-blur-xl border border-purple-400/40">
 
-                <ul className="list-disc ml-6 space-y-2">
-                  {abnormalValues.map((v, i) => (
-                    <li key={i}>{v}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        )}
+        <h3 className="text-xl font-bold mb-3 text-purple-300">
+          🚨 Abnormal Lab Values Detected
+        </h3>
+
+        <ul className="list-disc ml-6 space-y-2 text-white/90">
+          {abnormalValues.map((v, i) => (
+            <li key={i}>{v}</li>
+          ))}
+        </ul>
+      </div>
+    )}
+  </div>
+)}
+
 
         {/* ===== PAYMENTS ===== */}
         {activeTab === "payments" && (
