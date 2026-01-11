@@ -2,9 +2,9 @@ import { NavLink } from "react-router-dom";
 
 const menu = [
   { name: "Dashboard", path: "/" },
-  { name: "EHR", path: "/ehr" },
-  { name: "Appointments", path: "/appointments" },
-  { name: "ADR Reporting", path: "/fda-reporting" }, // ✅ NEW
+  { name: "Summary", path: "/ehr" },
+  { name: "ADR", path: "/adr" },
+  { name: "Appointments", path: "/appointments" }, // ✅ NEW
   { name: "Clinic Analytics", path: "/analytics" },
   { name: "Nurse Dashboard", path: "/nurse-dashboard" }
   

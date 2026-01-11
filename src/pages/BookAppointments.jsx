@@ -8,7 +8,6 @@ export default function BookAppointments() {
   const [time, setTime] = useState("");
   const [selectedPatient, setSelectedPatient] = useState("");
 
-  // Mock data for patients per date
   const mockAppointments = {
     "2026-1-5": [{ patient: "John Doe" }, { patient: "Maria Smith" }],
     "2026-1-12": [{ patient: "Abdul Rahman" }],
@@ -16,7 +15,6 @@ export default function BookAppointments() {
   };
 
   useEffect(() => {
-    // Load initial appointments
     setAppointments(mockAppointments);
   }, []);
 
@@ -52,14 +50,16 @@ export default function BookAppointments() {
   };
 
   const assignTime = () => {
-    if (!selectedPatient || !time) return alert("Select patient and time");
-
-    // Check if time already assigned
-    if (todaysAppointments.find((a) => a.time === time)) {
-      return alert("Time slot already assigned for this date!");
+    if (!selectedPatient || !time) {
+      alert("Select patient and time");
+      return;
     }
 
-    // Update patient with time
+    if (todaysAppointments.find((a) => a.time === time)) {
+      alert("Time slot already assigned for this date!");
+      return;
+    }
+
     const updatedAppointments = todaysAppointments.map((a) =>
       a.patient === selectedPatient ? { ...a, time } : a
     );
@@ -73,29 +73,36 @@ export default function BookAppointments() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white p-8">
-      <h2 className="text-3xl font-bold mb-8 flex items-center gap-2">
-        📅 Book Appointments
+    <div className="text-white">
+      <h2 className="text-3xl font-bold mb-8 text-center bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
+        Book Appointments
       </h2>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-        {/* ===== CALENDAR ===== */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur">
+        {/* CALENDAR */}
+        <div className="rounded-3xl p-6 bg-white/5 backdrop-blur-2xl border border-white/20 shadow-xl">
           <div className="flex items-center justify-between mb-6">
             <button onClick={prevMonth} className="calendar-nav">‹</button>
             <h3 className="text-lg font-semibold">
-              {new Date(year, month).toLocaleString("default", { month: "long", year: "numeric" })}
+              {new Date(year, month).toLocaleString("default", {
+                month: "long",
+                year: "numeric",
+              })}
             </h3>
             <button onClick={nextMonth} className="calendar-nav">›</button>
           </div>
 
           <div className="grid grid-cols-7 text-center text-sm mb-3 opacity-70">
-            {["Su","Mo","Tu","We","Th","Fr","Sa"].map((d) => <div key={d}>{d}</div>)}
+            {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
+              <div key={d}>{d}</div>
+            ))}
           </div>
 
           <div className="grid grid-cols-7 gap-2 text-center">
-            {Array.from({ length: firstDay }).map((_, i) => <div key={i} />)}
+            {Array.from({ length: firstDay }).map((_, i) => (
+              <div key={i} />
+            ))}
             {Array.from({ length: daysInMonth }, (_, i) => {
               const date = i + 1;
               const isSelected = selectedDate === date;
@@ -104,11 +111,14 @@ export default function BookAppointments() {
               return (
                 <div
                   key={date}
-                  onClick={() => { setSelectedDate(date); setSelectedPatient(""); setTime(""); }}
+                  onClick={() => {
+                    setSelectedDate(date);
+                    setSelectedPatient("");
+                    setTime("");
+                  }}
                   className={`calendar-cell
                     ${isSelected ? "calendar-selected" : ""}
-                    ${hasAppointment ? "calendar-appt" : ""}
-                  `}
+                    ${hasAppointment ? "calendar-appt" : ""}`}
                 >
                   {date}
                 </div>
@@ -117,8 +127,8 @@ export default function BookAppointments() {
           </div>
         </div>
 
-        {/* ===== PATIENT LIST + TIME ASSIGNMENT ===== */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur">
+        {/* PATIENT LIST */}
+        <div className="rounded-3xl p-6 bg-white/5 backdrop-blur-2xl border border-white/20 shadow-xl">
           <h3 className="text-xl font-semibold mb-4">
             {selectedDate
               ? `Appointments – ${selectedDate}/${month + 1}/${year}`
@@ -128,9 +138,14 @@ export default function BookAppointments() {
           {selectedDate && todaysAppointments.length > 0 ? (
             <div className="space-y-3 mb-4">
               {todaysAppointments.map((appt, idx) => (
-                <div key={idx} className="bg-gray-900/70 p-3 rounded-xl flex justify-between items-center">
+                <div
+                  key={idx}
+                  className="p-3 rounded-xl bg-white/10 backdrop-blur-xl border border-white/20 flex justify-between"
+                >
                   <span>{appt.patient}</span>
-                  <span className="opacity-70">{appt.time || "Time not assigned"}</span>
+                  <span className="opacity-70">
+                    {appt.time || "Time not assigned"}
+                  </span>
                 </div>
               ))}
             </div>
@@ -138,76 +153,72 @@ export default function BookAppointments() {
             <p className="opacity-70 mb-4">No patients booked for this date.</p>
           ) : null}
 
-          {/* Assign Time Form */}
           {selectedDate && todaysAppointments.length > 0 && (
             <div className="flex gap-2 items-center">
               <select
-                value={selectedPatient}
-                onChange={(e) => setSelectedPatient(e.target.value)}
-                className="p-3 rounded-lg bg-gray-800 text-white border border-purple-500/30 flex-1"
-              >
-                <option value="">Select Patient</option>
-                {todaysAppointments
-                  .filter((a) => !a.time)
-                  .map((a, idx) => (
-                    <option key={idx} value={a.patient}>{a.patient}</option>
-                  ))}
-              </select>
-              <input
-                type="time"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                className="p-3 rounded-lg bg-gray-800 text-white border border-purple-500/30"
-              />
+  value={selectedPatient}
+  onChange={(e) => setSelectedPatient(e.target.value)}
+  className="p-3 rounded-lg bg-black/30 text-white flex-1 border border-purple-400/50 backdrop-blur-md appearance-none"
+>
+  <option value="" className="bg-black text-white">Select Patient</option>
+  {todaysAppointments
+    .filter((a) => !a.time)
+    .map((a, idx) => (
+      <option key={idx} value={a.patient} className="bg-black text-white">
+        {a.patient}
+      </option>
+    ))}
+</select>
+
+<input
+  type="time"
+  value={time}
+  onChange={(e) => setTime(e.target.value)}
+  className="p-3 rounded-lg bg-black/30 text-white border border-purple-400/50 backdrop-blur-md appearance-none"
+/>
+
+
               <button
                 onClick={assignTime}
-                className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg font-semibold"
+                className="px-5 py-2 rounded-lg font-semibold bg-gradient-to-r from-pink-500 to-purple-600"
               >
-                Assign Time
+                Assign
               </button>
             </div>
           )}
         </div>
       </div>
 
-      {/* ===== STYLES ===== */}
       <style>{`
         .calendar-nav {
           width: 36px;
           height: 36px;
           border-radius: 50%;
-          background: rgba(255,255,255,0.05);
+          background: rgba(255,255,255,0.08);
           display: flex;
           align-items: center;
           justify-content: center;
           font-size: 20px;
-        }
-        .calendar-nav:hover {
-          background: rgba(255,255,255,0.15);
         }
         .calendar-cell {
           height: 44px;
           display: flex;
           align-items: center;
           justify-content: center;
-          border-radius: 10px;
+          border-radius: 12px;
           cursor: pointer;
-          background: rgba(255,255,255,0.03);
+          background: rgba(255,255,255,0.05);
           position: relative;
         }
-        .calendar-cell:hover {
-          background: rgba(255,255,255,0.15);
-        }
         .calendar-selected {
-          background: #e11d48;
-          color: white;
+          background: linear-gradient(135deg,#ec4899,#8b5cf6);
           font-weight: 600;
         }
         .calendar-appt::after {
           content: "";
           width: 6px;
           height: 6px;
-          background: #e11d48;
+          background: #ec4899;
           border-radius: 50%;
           position: absolute;
           bottom: 6px;

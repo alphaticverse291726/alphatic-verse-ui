@@ -4,7 +4,7 @@
 
 body {
   margin: 0;
-  background: #000;
+  background: #faf6f6;
   color: white;
   font-family: "Inter", "Segoe UI", system-ui, sans-serif;
   line-height: 1.6;
@@ -12,7 +12,7 @@ body {
 
 
 .glass {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(248, 239, 239, 0.08);
   backdrop-filter: blur(16px);
   border-radius: 20px;
 }

@@ -15,6 +15,9 @@ import DoctorReview from "./components/ehr/DoctorReview";
 import BookAppointments from "./pages/BookAppointments";
 import NurseDashboard from "./pages/NurseDashboard";
 
+// ✅ NEW ADR PAGE
+import ADRPage from "./pages/ADRPage";
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -32,12 +35,16 @@ export default function App() {
             <Route path="/ehr/workspace" element={<EHRWorkspace />} />
             <Route path="/ehr/report" element={<EHRReport />} />
             <Route path="/ehr/records" element={<EHRRecords />} />
+            <Route path="/ehr/review" element={<DoctorReview />} />
 
             <Route path="/appointments" element={<Appointments />} />
-            <Route path="/fda-reporting" element={<FDAReporting />} />
-            <Route path="/ehr/review" element={<DoctorReview />} />
+            <Route path="/book-appointments" element={<BookAppointments />} />
             <Route path="/nurse-dashboard" element={<NurseDashboard />} />
 
+            <Route path="/fda-reporting" element={<FDAReporting />} />
+
+            {/* ✅ ADR MANAGEMENT PAGE */}
+            <Route path="/adr" element={<ADRPage />} />
           </Routes>
         </main>
       </div>

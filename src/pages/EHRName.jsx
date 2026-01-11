@@ -3,246 +3,278 @@ import { useNavigate } from "react-router-dom";
 
 const patientsList = ["Robert", "Linna", "Tina", "Rina"];
 
-// 🔥 BACKEND URL (CHANGE ONLY IF DEPLOYED)
-const BACKEND_URL = "https://didactic-dollop-4j5jgp497vrpcj4g7-8001.app.github.dev";
-;
-
 export default function EHRName() {
   const navigate = useNavigate();
+
   const [selectedPatient, setSelectedPatient] = useState("");
   const [prescription, setPrescription] = useState("");
   const [recording, setRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [showReport, setShowReport] = useState(false);
 
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
 
-  // ================= Patient Selection =================
-  const handlePatientSelect = (name) => setSelectedPatient(name);
+  /* ================= MOCK EHR (CONSULTATION FORMAT) ================= */
+  const mockEHR = {
+    patientId: "PT-CLINIC001-0001",
+    age: 38,
+    gender: "Male",
+    date: "03-Jan-2026, 2:35 PM",
 
-  // ================= Prescription =================
-  const handlePrescriptionChange = (e) =>
-    setPrescription(e.target.value);
+    complaint: "Headache for 2 days",
 
-  const handlePrescriptionSave = () => {
-    alert(`Prescription saved for ${selectedPatient}:\n${prescription}`);
-    setPrescription("");
+    vitals: {
+      bp: "120/80 mmHg",
+      hr: "72 bpm",
+    },
+
+    diagnosis: {
+      code: "R51",
+      text: "Tension Headache",
+      confidence: 89,
+    },
+
+    prescription: [
+      { drug: "Paracetamol 500mg", dose: "Twice daily for 5 days", adr: 5 },
+      { drug: "Aspirin 75mg", dose: "Once daily (continue)", adr: 22 },
+    ],
+
+    claim: {
+      code: "CPT 99213",
+      description: "Office Visit",
+      amount: "₹800",
+      status: "Pending approval",
+    },
   };
 
-  // ================= Audio Recording =================
- const startRecording = async () => {
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
-  const mediaRecorder = new MediaRecorder(stream, {
-    mimeType: "audio/webm;codecs=opus", // ✅ REQUIRED
-  });
-
-  mediaRecorderRef.current = mediaRecorder;
-  audioChunksRef.current = [];
-
-  mediaRecorder.ondataavailable = (e) => {
-    if (e.data.size > 0) {
-      audioChunksRef.current.push(e.data);
-    }
+  /* ================= ACTIONS ================= */
+  const startRecording = () => {
+    setRecording(true);
+    setTimeout(() => {
+      setAudioBlob(new Blob(["mock-audio"], { type: "audio/webm" }));
+    }, 1500);
   };
 
-  mediaRecorder.onstop = () => {
-    const blob = new Blob(audioChunksRef.current, {
-      type: "audio/webm",
-    });
-    setAudioBlob(blob);
-  };
+  const stopRecording = () => setRecording(false);
 
-  mediaRecorder.start();
-  setRecording(true);
-};
-
-  const stopRecording = () => {
-    mediaRecorderRef.current.stop();
-    setRecording(false);
-  };
-
-  // ================= Generate EHR =================
-  const handleGenerateEHR = async () => {
+  const handleGenerateEHR = () => {
     if (!audioBlob) {
       alert("Please record audio first.");
       return;
     }
-
     setLoading(true);
-
-    const formData = new FormData();
-    formData.append("audio", audioBlob, "recording.webm");
-
-    try {
-      const response = await fetch(
-        `${BACKEND_URL}/api/generate-ehr`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to generate EHR");
-      }
-
-      const data = await response.json(); // ✅ FIXED
-
-      const ehrData = {
-        ...data,
-        patientName: selectedPatient,
-        prescription: prescription || "No medication entered",
-      };
-
-      const existing =
-        JSON.parse(localStorage.getItem("ehrRecords")) || [];
-
-      localStorage.setItem(
-        "ehrRecords",
-        JSON.stringify([...existing, ehrData])
-      );
-
-      navigate("/ehr/report", { state: ehrData });
-    } catch (err) {
-      console.error(err);
-      alert("Failed to generate EHR");
-    } finally {
+    setTimeout(() => {
       setLoading(false);
-    }
+      setShowReport(true);
+      localStorage.setItem("latestEHR", JSON.stringify(mockEHR));
+    }, 2000);
   };
 
-  // ================= UI (UNCHANGED) =================
+  const goToADR = () => navigate("/fda-reporting");
+
+  /* ================= UI ================= */
   return (
-    <div className="flex flex-col min-h-screen bg-gray-900 text-white p-8 gap-8">
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-black to-pink-900 text-white p-8">
 
-      {!selectedPatient && (
-        <div className="flex flex-col items-center gap-6">
-          <h2 className="text-4xl font-bold text-center">Select a Patient</h2>
-          <p className="text-gray-300 text-lg">
-            Choose a patient to start generating EHR
-          </p>
+      {/* MAIN GLASS CONTAINER */}
+      <div className="max-w-7xl mx-auto bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl shadow-2xl p-10 space-y-10">
 
-          <div className="bg-gray-800 border border-purple-500/40 rounded-2xl shadow-lg p-6 mt-4 w-64">
-            <h3 className="text-xl font-semibold mb-4 text-center">
-              Patient List
-            </h3>
-            <div className="flex flex-col gap-3">
-              {patientsList.map((patient) => (
+        {/* PATIENT SELECT */}
+        {!selectedPatient && (
+          <div className="flex flex-col items-center gap-6">
+            <h2 className="text-4xl font-bold bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
+              Select a Patient
+            </h2>
+
+            <div className="bg-white/15 backdrop-blur-xl border border-white/30 rounded-2xl p-6 w-64">
+              {patientsList.map((p) => (
                 <button
-                  key={patient}
-                  onClick={() => handlePatientSelect(patient)}
-                  className="bg-pink-600 hover:bg-pink-500 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 text-left"
+                  key={p}
+                  onClick={() => setSelectedPatient(p)}
+                  className="w-full mb-3 py-3 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 font-semibold"
                 >
-                  {patient}
+                  {p}
                 </button>
               ))}
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {selectedPatient && (
-        <>
-          <div className="flex flex-col md:flex-row gap-8 flex-1">
+        {/* RECORDING + SIDE CARDS */}
+        {selectedPatient && (
+          <>
+            <div className="flex flex-col md:flex-row gap-8">
 
-            <div className="relative flex-1 flex flex-col justify-center items-center bg-gray-800 border border-pink-500/40 rounded-2xl p-8 shadow-lg">
-              <button
-                onClick={() => setSelectedPatient("")}
-                className="absolute top-4 left-4 bg-purple-700 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg text-sm"
-              >
-                Change Patient
-              </button>
-
-              <div className="text-pink-500 text-6xl mb-4 animate-pulse">🎤</div>
-
-              <p className="text-lg opacity-80 mb-6 text-center">
-                Click to record EHR for{" "}
-                <span className="font-semibold">{selectedPatient}</span>
-              </p>
-
-              {!recording ? (
+              {/* RECORDING PANEL */}
+              <div className="flex-1 bg-white/15 backdrop-blur-xl border border-pink-500/30 rounded-2xl p-8 flex flex-col items-center justify-center relative">
                 <button
-                  onClick={startRecording}
-                  className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg mb-4"
+                  onClick={() => setSelectedPatient("")}
+                  className="absolute top-4 left-4 text-sm bg-white/20 px-4 py-2 rounded-lg"
                 >
-                  Start Recording
+                  Change Patient
                 </button>
-              ) : (
-                <button
-                  onClick={stopRecording}
-                  className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg mb-4"
-                >
-                  Stop Recording
-                </button>
-              )}
 
-              {audioBlob && (
-                <audio
-                  controls
-                  src={URL.createObjectURL(audioBlob)}
-                  className="mb-4"
-                />
-              )}
-
-              <button
-                onClick={handleGenerateEHR}
-                disabled={loading || !audioBlob}
-                className="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg text-white font-semibold disabled:opacity-50"
-              >
-                {loading ? "Generating EHR..." : "Generate EHR"}
-              </button>
-            </div>
-
-            <div className="flex-1 flex flex-col gap-6">
-              <div className="bg-gray-800 border border-purple-500/30 rounded-xl p-6 shadow-md">
-                <h3 className="text-xl font-semibold mb-3">Lab Report</h3>
-                <ul className="list-disc list-inside opacity-80 text-gray-200">
-                  <li>Pending CBC</li>
-                  <li>Pending Lipid Profile</li>
-                  <li>Pending LFT</li>
-                </ul>
-              </div>
-
-              <div className="bg-gray-800 border border-purple-500/30 rounded-xl p-6 shadow-md">
-                <h3 className="text-xl font-semibold mb-3">Past Medical</h3>
-                <p className="opacity-80 text-gray-200">
-                  No previous records found.
+                <div className="text-6xl animate-pulse mb-4">🎤</div>
+                <p className="opacity-80 mb-6">
+                  Recording for <b>{selectedPatient}</b>
                 </p>
+
+                {!recording ? (
+                  <button onClick={startRecording} className="bg-green-600 px-6 py-2 rounded-lg mb-3">
+                    Start Recording
+                  </button>
+                ) : (
+                  <button onClick={stopRecording} className="bg-red-600 px-6 py-2 rounded-lg mb-3">
+                    Stop Recording
+                  </button>
+                )}
+
+                <button
+                  onClick={handleGenerateEHR}
+                  disabled={loading || !audioBlob}
+                  className="bg-blue-600 px-6 py-2 rounded-lg disabled:opacity-50"
+                >
+                  {loading ? "AI Generating EHR..." : "Generate EHR"}
+                </button>
               </div>
 
-              <div className="bg-gray-800 border border-purple-500/30 rounded-xl p-6 shadow-md">
-                <h3 className="text-xl font-semibold mb-3">Medication</h3>
-                <ul className="list-disc list-inside opacity-80 text-gray-200">
-                  <li>Thyroxine 50 mcg OD</li>
-                  <li>Fexofenadine 180 mg BID</li>
-                  <li>Enoxaparin 0.6 SC</li>
-                </ul>
+              {/* SIDE PANELS (RESTORED) */}
+              <div className="flex-1 flex flex-col gap-6">
+                {["Lab Report", "Past Medical", "Medication"].map((title) => (
+                  <div
+                    key={title}
+                    className="bg-white/15 backdrop-blur-xl border border-white/25 rounded-xl p-6"
+                  >
+                    <h3 className="text-lg font-semibold mb-2">{title}</h3>
+                    <p className="opacity-70 text-sm">Mock data available</p>
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
 
-          <div className="bg-gray-800 border border-purple-500/30 rounded-xl p-6 shadow-md flex flex-col gap-4">
-            <h3 className="text-xl font-semibold mb-2">
-              E-Prescription for {selectedPatient}
-            </h3>
+            {/* PRESCRIPTION INPUT */}
+            <div className="bg-white/15 backdrop-blur-xl border border-white/25 rounded-xl p-6">
+              <h3 className="text-lg font-semibold mb-3">
+                E-Prescription for {selectedPatient}
+              </h3>
+              <textarea
+                value={prescription}
+                onChange={(e) => setPrescription(e.target.value)}
+                className="w-full bg-black/40 border border-pink-500/40 rounded-lg p-3 h-24"
+                placeholder="Type prescription here..."
+              />
+            </div>
+          </>
+        )}
+      </div>
 
-            <textarea
-              value={prescription}
-              onChange={handlePrescriptionChange}
-              placeholder="Type prescription here..."
-              className="w-full bg-gray-900 border border-purple-500/50 rounded-lg p-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500 resize-none h-24"
-            />
+      {/* ================= EHR POPUP ================= */}
+      {showReport && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50">
+          <div className="bg-white/10 backdrop-blur-2xl border border-white/30 rounded-3xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto scroll-smooth">
+
+            <pre className="whitespace-pre-wrap text-sm leading-relaxed">
+
+<h2>CONSULTATION SUMMARY</h2>
+
+Patient Name: John Doe<br></br>
+Patient ID: PT-CLINIC001-0001<br></br>
+Date of Birth: 12-May-1987<br></br>
+Age: 38<br></br>
+Gender: Male<br></br>
+
+Clinic Name: Alphatic Health Clinic<br></br>
+Clinic Registration ID: CL-OM-45893<br></br>
+Treating Physician: Dr. Ravi Kumar<br></br>
+Medical Council Registration No: TNMC-123456<br></br>
+Digital Signature: ✔ Verified<br></br>
+
+Encounter ID: ENC-2026-01-03-0021<br></br>
+Date & Time: 03-Jan-2026, 2:35 PM<br></br>
+Mode of Visit: In-Person<br></br>
+
+<br></br>
+<h3>CHIEF COMPLAINT</h3>
+Headache for 2 days<br></br>
+(SNOMED CT: 25064002)<br></br>
+
+<br></br>
+<h3>VITALS</h3>
+✓ Blood Pressure: 120/80 mmHg (Normal)<br></br>
+✓ Heart Rate: 72 bpm (Normal)<br></br>
+✓ Temperature: 36.8°C<br></br>
+✓ SpO₂: 99%<br></br>
+
+<br></br>
+<h3>CLINICAL ASSESSMENT</h3>
+Diagnosis: Tension Headache<br></br>
+ICD-10: R51<br></br>
+(Confidence: 89%)<br></br>
+
+<br></br>
+<h3>CLINICAL NOTES:</h3>
+No neurological deficits, vitals stable, no red-flag symptoms observed.<br></br>
+
+<br></br>
+<h3>PRESCRIPTION</h3>
+Drug&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Dose&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Frequency&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Indication<br></br>
+Paracetamol&nbsp;&nbsp;500 mg&nbsp;&nbsp;&nbsp;&nbsp;Twice daily&nbsp;&nbsp;&nbsp;&nbsp;Headache<br></br>
+Aspirin&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;75 mg&nbsp;&nbsp;&nbsp;&nbsp;Once daily&nbsp;&nbsp;&nbsp;&nbsp;Cardiovascular prophylaxis<br></br>
+
+<br></br>
+Therapy Start Date: 01-Jan-2026<br></br>
+
+<br></br>
+<h3>INSURANCE CLAIM DETAILS</h3>
+Procedure Code: CPT 99213 – Office Visit<br></br>
+Linked Diagnosis: R51 – Tension Headache<br></br>
+Charge: ₹800<br></br>
+Medical Necessity: Neurological evaluation and vital-sign monitoring performed for acute headache.<br></br>
+Claim Status: Pending approval<br></br>
+
+<br></br>
+<h3>ADVERSE DRUG REACTION (AUTO-DETECTED BY AI)</h3>
+Follow-up Date: 05-Jan-2026<br></br>
+Patient Reported Symptom: Black stools<br></br>
+SNOMED CT: 62315008<br></br>
+Suspected Drug: Aspirin<br></br>
+Reaction: Gastrointestinal bleeding<br></br>
+Seriousness: Serious<br></br>
+Outcome: Not recovered<br></br>
+Causality Assessment: Probable<br></br>
+Reviewed and Confirmed by: Dr. Ravi Kumar<br></br>
+
+<br></br>
+<h3>PHARMACOVIGILANCE CASE (ICH-E2B READY)</h3>
+PV Case ID: PV-CLINIC001-00045<br></br>
+Patient Age: 38<br></br>
+Sex: Male<br></br>
+Reaction Term (MedDRA): Gastrointestinal haemorrhage<br></br>
+Suspect Drug: Aspirin 75 mg<br></br>
+Therapy Start Date: 01-Jan-2026<br></br>
+Reaction Onset: 05-Jan-2026<br></br>
+Outcome: Ongoing<br></br>
+Reporter: Dr. Ravi Kumar<br></br>
+Country of Occurrence: Oman<br></br>
+
+<br></br>
+<h3>AUDIT TRAIL</h3>
+Record Created: 03-Jan-2026, 14:36 – Dr. Ravi Kumar<br></br>
+AI Coding & Validation: 03-Jan-2026, 14:37 – Alphatic AI Engine<br></br>
+Physician Approval: 03-Jan-2026, 14:38 – Dr. Ravi Kumar<br></br>
+
+</pre>
 
             <button
-              onClick={handlePrescriptionSave}
-              className="self-end bg-pink-500 hover:bg-pink-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md"
+              onClick={goToADR}
+              className="mt-6 w-full bg-gradient-to-r from-pink-600 to-purple-600 py-3 rounded-xl font-semibold"
             >
-              Save
+              Proceed to ADR Reporting
             </button>
           </div>
-        </>
+        </div>
       )}
     </div>
   );
