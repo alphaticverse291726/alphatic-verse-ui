@@ -12,7 +12,8 @@ export default function BookAppointments() {
     "2026-1-5": [{ patient: "John Doe" }, { patient: "Maria Smith" }, { patient: "Ali Hassan" }],
     "2026-1-12": [{ patient: "Abdul Rahman" }, { patient: "Chen Wei" }, { patient: "Ana Silva" }],
     "2026-1-18": [{ patient: "Linda George" }, { patient: "Mark Lee" }, { patient: "Fatima Khan" }],
-    "2026-1-16": [{ patient: "Sophia Brown" }, { patient: "James Wilson" }, { patient: "Emma Davis" }, { patient: "Olivia Garcia" }], 
+    "2026-1-16": [{ patient: "Sophia Brown" }, { patient: "James Wilson" }, { patient: "Emma Davis" }, { patient: "Olivia Garcia" }],
+    "2026-1-31": [{ patient: "Liam Martinez" }, { patient: "Noah Anderson" }, { patient: "Ava Thomas" }, { patient: "Isabella Taylor" }, { patient: "Mia Moore" }],
   };
 
   useEffect(() => {

@@ -43,18 +43,40 @@ const pendingReports = [
 ];
 
 const criticalPatients = [
-  { id: 1, name: "Ravi K.", condition: "High BP", room: "ICU-2" },
-  { id: 2, name: "Sana M.", condition: "Severe Diabetes", room: "ICU-5" },
-  { id: 3, name: "Arjun P.", condition: "Cardiac Arrest", room: "ICU-1" },
+  {
+    id: 1,
+    name: "Arun S.",
+    condition: "Acute dental abscess with facial swelling",
+    chair: "Dental Chair 2",
+    priority: "High",
+  },
+  {
+    id: 2,
+    name: "Meera K.",
+    condition: "Post-extraction bleeding (uncontrolled)",
+    chair: "Dental Chair 1",
+    priority: "Critical",
+  },
+  {
+    id: 3,
+    name: "Joseph T.",
+    condition: "Severe pulpitis – unbearable pain",
+    chair: "Dental Chair 3",
+    priority: "High",
+  },
 ];
 
+
 const inventoryStatus = [
-  { name: "Paracetamol", status: "Available" },
-  { name: "Antibiotics", status: "Available" },
-  { name: "Insulin", status: "Low Stock" },
-  { name: "IV Fluids", status: "Available" },
-  { name: "PPE Kits", status: "Low Stock" },
+  { name: "Lignocaine Injection", status: "Available" },
+  { name: "Amoxicillin 500mg", status: "Low Stock" },
+  { name: "Ibuprofen 400mg", status: "Available" },
+  { name: "Root Canal Files", status: "Low Stock" },
+  { name: "Dental Gloves", status: "Available" },
+  { name: "Mouth Mirrors", status: "Available" },
+  { name: "Composite Filling Material", status: "Low Stock" },
 ];
+
 
 /* ================= DASHBOARD ================= */
 export default function Dashboard() {
@@ -169,17 +191,37 @@ export default function Dashboard() {
           </GlassCard>
 
           {/* CRITICAL PATIENTS */}
-          <GlassCard title="Critical Patients">
-            {criticalPatients.map((p) => (
-              <div key={p.id} className="p-2 rounded-md bg-white/5 border border-white/20 mb-2">
-                <div className="flex justify-between text-sm sm:text-base">
-                  <span className="font-semibold">{p.name}</span>
-                  <span className="text-red-400">{p.room}</span>
-                </div>
-                <p className="text-xs sm:text-sm text-neutral-300">{p.condition}</p>
-              </div>
-            ))}
-          </GlassCard>
+        <GlassCard title="Dental Emergency Patients">
+  {criticalPatients.map((p) => (
+    <div
+      key={p.id}
+      className="p-3 rounded-xl bg-white/5 border border-white/20 mb-3"
+    >
+      <div className="flex justify-between items-center text-sm sm:text-base">
+        <span className="font-semibold text-pink-400">{p.name}</span>
+        <span className="text-purple-400 text-xs sm:text-sm">
+          {p.chair}
+        </span>
+      </div>
+
+      <p className="mt-1 text-xs sm:text-sm text-neutral-300">
+        {p.condition}
+      </p>
+
+      <span
+        className={`inline-block mt-2 px-2 py-0.5 rounded-full text-xs font-semibold
+          ${p.priority === "Critical"
+            ? "bg-red-500/20 text-red-400"
+            : "bg-yellow-500/20 text-yellow-400"
+          }`}
+      >
+        {p.priority} Priority
+      </span>
+    </div>
+  ))}
+</GlassCard>
+
+
         </div>
 
         {/* ================= ANALYTICS ================= */}
@@ -231,7 +273,7 @@ export default function Dashboard() {
           </div>
 
           {/* ===== INVENTORY STATUS ===== */}
-          <GlassCard title="Inventory Status">
+          <GlassCard title="Dental Inventory Status">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
               {inventoryStatus.map((item, i) => (
                 <div
