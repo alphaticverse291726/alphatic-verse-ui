@@ -3,280 +3,310 @@ import React, { useState } from "react";
 export default function EHRRecords() {
   const [selectedRecord, setSelectedRecord] = useState(null);
 
-const patients = [
-  {
-    id: "patient-001",
-    patientId: "PT-CLINIC001-0001",
-    name: "John Doe",
-    dob: "12-May-1987",
-    age: 38,
-    gender: "Male",
+  const patients = [
+    {
+      id: "dent-001",
+      patientId: "DEN-PT-2026-001",
+      name: "Rohit Sharma",
+      dob: "17-Aug-1994",
+      age: 31,
+      gender: "Male",
 
-    clinic: {
-      name: "Alphatic Health Clinic",
-      regId: "CL-OM-45893",
-    },
-
-    physician: {
-      name: "Dr. Ravi Kumar",
-      regNo: "TNMC-123456",
-      signature: "✔ Verified",
-    },
-
-    encounter: {
-      id: "ENC-2026-01-03-0021",
-      datetime: "03-Jan-2026, 2:35 PM",
-      mode: "In-Person",
-    },
-
-    complaint: {
-      text: "Headache for 2 days",
-      snomed: "25064002",
-    },
-
-    vitals: [
-      "Blood Pressure: 120/80 mmHg (Normal)",
-      "Heart Rate: 72 bpm (Normal)",
-      "Temperature: 36.8°C",
-      "SpO₂: 99%",
-    ],
-
-    diagnosis: {
-      name: "Tension Headache",
-      icd10: "R51",
-      confidence: "89%",
-      notes:
-        "No neurological deficits, vitals stable, no red-flag symptoms observed.",
-    },
-
-    prescription: [
-      {
-        drug: "Paracetamol",
-        dose: "500 mg",
-        frequency: "Twice daily",
-        indication: "Headache",
+      clinic: {
+        name: "SmileCraft Dental Care",
+        regId: "TN-DENT-45872",
       },
-      {
-        drug: "Aspirin",
-        dose: "75 mg",
-        frequency: "Once daily",
-        indication: "Cardiovascular prophylaxis",
+
+      dentist: {
+        name: "Dr. Ananya Rao, BDS, MDS",
+        regNo: "DCI/KA/2015/32456",
+        signature: "Digitally Signed",
       },
-    ],
 
-    therapyStart: "01-Jan-2026",
+      encounter: {
+        id: "DEN-ENC-10021",
+        datetime: "28-Jan-2026, 11:15 AM",
+        mode: "OPD",
+      },
 
-    insurance: {
-      cpt: "CPT 99213 – Office Visit",
-      linkedDx: "R51 – Tension Headache",
-      charge: "₹800",
-      necessity:
-        "Neurological evaluation and vital-sign monitoring performed for acute headache.",
-      status: "Pending approval",
+      complaint: {
+        text: "Severe pain in lower right molar region",
+        snomed: "27355003",
+      },
+
+      vitals: [
+        "BP: 124/82 mmHg",
+        "Pulse: 76 bpm",
+        "Temperature: 98.4°F",
+        "SpO₂: 99%",
+      ],
+
+      exam: {
+        findings:
+          "Deep caries in tooth 46 with gingival inflammation and tenderness on percussion",
+      },
+
+      diagnosis: {
+        name: "Chronic Apical Periodontitis",
+        icd10: "K04.5",
+        confidence: "High",
+        notes:
+          "Radiographic evidence of periapical radiolucency. Root canal treatment advised.",
+      },
+
+      prescription: [
+        {
+          drug: "Amoxicillin",
+          dose: "500 mg",
+          frequency: "TID x 5 days",
+          indication: "Dental infection",
+        },
+        {
+          drug: "Ibuprofen",
+          dose: "400 mg",
+          frequency: "SOS",
+          indication: "Pain",
+        },
+      ],
+
+      procedureDate: "30-Jan-2026",
+
+      insurance: {
+        cdt: "D3310 – Root Canal (Molar)",
+        linkedDx: "K04.5",
+        charge: "₹8,500",
+        necessity:
+          "Procedure required to eliminate infection and preserve natural tooth.",
+        status: "Approved",
+      },
+
+      audit: [
+        "Record Created: 28-Jan-2026 11:20 – Dr. Ananya Rao",
+        "AI Coding Completed: 28-Jan-2026 11:21",
+        "Dentist Approval: 28-Jan-2026 11:22",
+      ],
     },
 
-    adr: {
-      followUp: "05-Jan-2026",
-      symptom: "Black stools",
-      snomed: "62315008",
-      suspectDrug: "Aspirin",
-      reaction: "Gastrointestinal bleeding",
-      seriousness: "Serious",
-      outcome: "Not recovered",
-      causality: "Probable",
-      reviewedBy: "Dr. Ravi Kumar",
+    {
+      id: "dent-002",
+      patientId: "DEN-PT-2026-002",
+      name: "Meera Iyer",
+      dob: "03-Mar-1989",
+      age: 36,
+      gender: "Female",
+
+      clinic: {
+        name: "SmileCraft Dental Care",
+        regId: "TN-DENT-45872",
+      },
+
+      dentist: {
+        name: "Dr. Ananya Rao, BDS, MDS",
+        regNo: "DCI/KA/2015/32456",
+        signature: "Digitally Signed",
+      },
+
+      encounter: {
+        id: "DEN-ENC-10022",
+        datetime: "29-Jan-2026, 10:10 AM",
+        mode: "OPD",
+      },
+
+      complaint: {
+        text: "Bleeding gums and bad breath",
+        snomed: "309585006",
+      },
+
+      vitals: [
+        "BP: 118/76 mmHg",
+        "Pulse: 74 bpm",
+        "Temperature: 98.1°F",
+        "SpO₂: 99%",
+      ],
+
+      exam: {
+        findings:
+          "Generalized gingival inflammation with bleeding on probing",
+      },
+
+      diagnosis: {
+        name: "Chronic Gingivitis",
+        icd10: "K05.1",
+        confidence: "Moderate",
+        notes:
+          "Poor oral hygiene noted. Scaling and root planing advised.",
+      },
+
+      prescription: [
+        {
+          drug: "Chlorhexidine Mouthwash",
+          dose: "0.12%",
+          frequency: "BD x 7 days",
+          indication: "Plaque control",
+        },
+      ],
+
+      procedureDate: "29-Jan-2026",
+
+      insurance: {
+        cdt: "D1110 – Scaling",
+        linkedDx: "K05.1",
+        charge: "₹2,000",
+        necessity:
+          "Removal of plaque and calculus to reduce inflammation.",
+        status: "Pending",
+      },
+
+      audit: [
+        "Record Created: 29-Jan-2026 10:15 – Dr. Ananya Rao",
+        "AI Validation: 29-Jan-2026 10:16",
+      ],
     },
 
-    pv: {
-      caseId: "PV-CLINIC001-00045",
-      age: 38,
-      sex: "Male",
-      meddra: "Gastrointestinal haemorrhage",
-      drug: "Aspirin 75 mg",
-      therapyStart: "01-Jan-2026",
-      onset: "05-Jan-2026",
-      outcome: "Ongoing",
-      reporter: "Dr. Ravi Kumar",
-      country: "Oman",
+    {
+      id: "dent-003",
+      patientId: "DEN-PT-2026-003",
+      name: "Arjun Patel",
+      dob: "22-Nov-2001",
+      age: 24,
+      gender: "Male",
+
+      clinic: {
+        name: "SmileCraft Dental Care",
+        regId: "TN-DENT-45872",
+      },
+
+      dentist: {
+        name: "Dr. Ananya Rao, BDS, MDS",
+        regNo: "DCI/KA/2015/32456",
+        signature: "Digitally Signed",
+      },
+
+      encounter: {
+        id: "DEN-ENC-10023",
+        datetime: "30-Jan-2026, 4:40 PM",
+        mode: "Emergency",
+      },
+
+      complaint: {
+        text: "Broken upper front tooth after fall",
+        snomed: "282772001",
+      },
+
+      vitals: [
+        "BP: 122/80 mmHg",
+        "Pulse: 82 bpm",
+        "Temperature: 98.6°F",
+        "SpO₂: 98%",
+      ],
+
+      exam: {
+        findings:
+          "Ellis Class II fracture involving tooth 11",
+      },
+
+      diagnosis: {
+        name: "Enamel-Dentin Fracture",
+        icd10: "S02.5",
+        confidence: "High",
+        notes:
+          "Composite restoration recommended immediately.",
+      },
+
+      prescription: [],
+
+      procedureDate: "30-Jan-2026",
+
+      insurance: {
+        cdt: "D2330 – Composite Restoration",
+        linkedDx: "S02.5",
+        charge: "₹3,500",
+        necessity:
+          "Restoration required to prevent sensitivity and infection.",
+        status: "Approved",
+      },
+
+      audit: [
+        "Emergency Record Created: 30-Jan-2026 16:45",
+        "Dentist Approval: 30-Jan-2026 16:47",
+      ],
     },
-
-    audit: [
-      "Record Created: 03-Jan-2026, 14:36 – Dr. Ravi Kumar",
-      "AI Coding & Validation: 03-Jan-2026, 14:37 – Alphatic AI Engine",
-      "Physician Approval: 03-Jan-2026, 14:38 – Dr. Ravi Kumar",
-    ],
-  },
-];
-
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-purple-950 to-pink-950 p-10 text-white">
+      <h1 className="text-3xl font-bold mb-8">Dental EHR Records</h1>
 
-      <h1 className="text-3xl font-bold mb-8">EHR Records</h1>
-
-      {/* ===== RECORD CARDS (UNCHANGED) ===== */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {patients.map((p) => (
           <div
             key={p.id}
-            className="
-  bg-gradient-to-br from-white/10 via-purple-500/10 to-pink-500/10
-  backdrop-blur-xl
-  border border-white/20
-  rounded-xl p-6
-  shadow-lg shadow-pink-500/10
-  hover:shadow-pink-500/30
-  transition
-"
-
+            className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-6 shadow-lg"
           >
-            <h2 className="text-xl font-semibold mb-2">{p.name}</h2>
-            <p><b>Age:</b> {p.age}</p>
-            <p><b>Gender:</b> {p.gender}</p>
-            <p><b>Date:</b> {p.date}</p>
+            <h2 className="text-xl font-semibold">{p.name}</h2>
+            <p>Age: {p.age}</p>
+            <p>Gender: {p.gender}</p>
+            <p>Date: {p.encounter.datetime}</p>
 
             <button
               onClick={() => setSelectedRecord(p)}
               className="mt-4 w-full bg-purple-600 hover:bg-purple-700 py-2 rounded"
             >
-              View Full Record
+              View Dental Record
             </button>
           </div>
         ))}
       </div>
 
-      {/* ===== CONSULTATION SUMMARY POPUP (FORMAT FIXED) ===== */}
       {selectedRecord && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+          <div className="bg-white/10 backdrop-blur-2xl border border-white/20 rounded-2xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="whitespace-pre-wrap text-sm leading-relaxed">
+{`DENTAL CONSULTATION SUMMARY
 
-          <div
-  className="
-    bg-gradient-to-br from-white/10 via-purple-500/10 to-pink-500/10
-    backdrop-blur-2xl
-    border border-white/20
-    rounded-2xl
-    p-8
-    max-w-4xl w-full
-    max-h-[90vh] overflow-y-auto
-    shadow-2xl shadow-purple-500/20
-  "
->
+Patient Name: ${selectedRecord.name}
+Patient ID: ${selectedRecord.patientId}
+DOB: ${selectedRecord.dob}
+Age: ${selectedRecord.age}
+Gender: ${selectedRecord.gender}
 
+Clinic: ${selectedRecord.clinic.name}
+Dentist: ${selectedRecord.dentist.name}
+Registration No: ${selectedRecord.dentist.regNo}
 
-            <pre className="whitespace-pre-wrap text-sm leading-relaxed text-white">
-<h1>CONSULTATION SUMMARY</h1>
+Encounter ID: ${selectedRecord.encounter.id}
+Date & Time: ${selectedRecord.encounter.datetime}
+Mode: ${selectedRecord.encounter.mode}
 
-Patient Name: {selectedRecord.name}<br></br>
-Patient ID: {selectedRecord.patientId}<br></br>
-Date of Birth: {selectedRecord.dob}<br></br>
-Age: {selectedRecord.age}<br></br>
-Gender: {selectedRecord.gender}<br></br>
+Chief Complaint:
+${selectedRecord.complaint.text}
 
-Clinic Name: {selectedRecord.clinic?.name}<br></br>
-Clinic Registration ID: {selectedRecord.clinic?.regId}<br></br>
-Treating Physician: {selectedRecord.physician?.name}<br></br>
-Medical Council Registration No: {selectedRecord.physician?.regNo}<br></br>
-Digital Signature: {selectedRecord.physician?.signature}<br></br>
-
-Encounter ID: {selectedRecord.encounter?.id}<br></br>
-Date & Time: {selectedRecord.encounter?.datetime}<br></br>
-Mode of Visit: {selectedRecord.encounter?.mode}<br></br>
-
-<br></br>
-CHIEF COMPLAINT<br></br>
-
-{selectedRecord.complaint?.text}
-(SNOMED CT: {selectedRecord.complaint?.snomed})<br></br>
-
-<br></br>
-VITALS<br></br>
-
-{selectedRecord.vitals?.map((v) => `✓ ${v}`).join("\n")}<br></br>
-
-<br></br>
-CLINICAL ASSESSMENT<br></br>
+Clinical Findings:
+${selectedRecord.exam.findings}
 
 Diagnosis:
-{selectedRecord.diagnosis?.name}<br></br>
-ICD-10: {selectedRecord.diagnosis?.icd10}
-(Confidence: {selectedRecord.diagnosis?.confidence})<br></br>
-<br></br>
-CLINICAL NOTES:<br></br>
-{selectedRecord.diagnosis?.notes}<br></br>
+${selectedRecord.diagnosis.name}
+ICD-10: ${selectedRecord.diagnosis.icd10}
+Confidence: ${selectedRecord.diagnosis.confidence}
 
-<br></br>
-PRESCRIPTION<br></br>
-Drug        Dose        Frequency        Indication<br></br>
-{selectedRecord.prescription
-  ?.map(
-    (p) =>
-      `${p.drug.padEnd(12)}${p.dose.padEnd(12)}${p.frequency.padEnd(
-        16
-      )}${p.indication}`
-  )
-  .join("\n")}<br></br>
+Notes:
+${selectedRecord.diagnosis.notes}
 
-<br></br>
-Therapy Start Date: {selectedRecord.therapyStart}<br></br>
+Procedure Date: ${selectedRecord.procedureDate}
 
-<br></br>
-INSURANCE CLAIM DETAILS<br></br>
+Insurance:
+${selectedRecord.insurance.cdt}
+Charge: ${selectedRecord.insurance.charge}
+Status: ${selectedRecord.insurance.status}
 
-Procedure Code: {selectedRecord.insurance?.cpt}<br></br>
-Linked Diagnosis: {selectedRecord.insurance?.linkedDx}<br></br>
-Charge: {selectedRecord.insurance?.charge}<br></br>
-
-Medical Necessity:
-{selectedRecord.insurance?.necessity}<br></br>
-
-Claim Status: {selectedRecord.insurance?.status}<br></br>
-
-<br></br>
-ADVERSE DRUG REACTION (AUTO-DETECTED BY AI)<br></br>
-
-Follow-up Date: {selectedRecord.adr?.followUp}<br></br>
-Patient Reported Symptom: {selectedRecord.adr?.symptom}<br></br>
-SNOMED CT: {selectedRecord.adr?.snomed}<br></br>
-
-Suspected Drug: {selectedRecord.adr?.suspectDrug}<br></br>
-Reaction: {selectedRecord.adr?.reaction}<br></br>
-Seriousness: {selectedRecord.adr?.seriousness}<br></br>
-Outcome: {selectedRecord.adr?.outcome}<br></br>
-Causality Assessment: {selectedRecord.adr?.causality}<br></br>
-
-Reviewed and Confirmed by: {selectedRecord.adr?.reviewedBy}<br></br>
-
-<br></br>
-PHARMACOVIGILANCE CASE (ICH-E2B READY)<br></br>
-
-PV Case ID: {selectedRecord.pv?.caseId}<br></br>
-Patient Age: {selectedRecord.pv?.age}<br></br>
-Sex: {selectedRecord.pv?.sex}<br></br>
-Reaction Term (MedDRA): {selectedRecord.pv?.meddra}<br></br>
-Suspect Drug: {selectedRecord.pv?.drug}<br></br>
-Therapy Start Date: {selectedRecord.pv?.therapyStart}<br></br>
-Reaction Onset: {selectedRecord.pv?.onset}<br></br>
-Outcome: {selectedRecord.pv?.outcome}<br></br>
-Reporter: {selectedRecord.pv?.reporter}<br></br>
-Country of Occurrence: {selectedRecord.pv?.country}<br></br>
-
-<br></br>
-AUDIT TRAIL<br></br>
-
-{selectedRecord.audit?.join("\n")}
-</pre>
-
+Audit Trail:
+${selectedRecord.audit.join("\n")}
+`}
+            </div>
 
             <button
               onClick={() => setSelectedRecord(null)}
-              className="
-  mt-4 w-full
-  bg-gradient-to-r from-pink-500 to-purple-600
-  hover:from-pink-600 hover:to-purple-700
-  py-2 rounded
-  shadow-md shadow-pink-500/30
-"
-
+              className="mt-6 w-full bg-gradient-to-r from-pink-500 to-purple-600 py-2 rounded"
             >
               Close
             </button>

@@ -270,44 +270,54 @@ const mockMedications = [
 <h2>CONSULTATION SUMMARY</h2>
 
 Patient Name: {selectedPatient}<br />
-Patient ID: PT-CLINIC001-0001<br />
+Patient ID: DEN-PT-2026-001<br />
 Age: 38<br />
 Gender: Male<br />
 
-Clinic Name: Alphatic Health Clinic<br />
-Clinic Registration ID: CL-OM-45893<br />
-Treating Physician: Dr. Ravi Kumar<br />
-Medical Council Registration No: TNMC-123456<br />
+Clinic Name: Alphatic Dental Care<br />
+Clinic Registration ID: DCI-OM-45893<br />
+Treating Dentist: Dr. Ravi Kumar, BDS, MDS<br />
+Dental Council Registration No: TNDC-123456<br />
 Digital Signature: ✔ Verified<br />
 
-Encounter ID: ENC-2026-01-03-0021<br />
+Encounter ID: DEN-ENC-2026-01-0031<br />
 Date & Time: 03-Jan-2026, 2:35 PM<br />
-Mode of Visit: In-Person<br />
+Mode of Visit: OPD<br />
 
 <br />
-<h3>CHIEF COMPLAINT</h3>
-Headache for 2 days<br />
+<h3>CHIEF DENTAL COMPLAINT</h3>
+Severe pain in lower right molar region for 2 days, aggravated on chewing<br />
 
 <br />
-<h3>VITALS</h3>
+<h3>VITAL SIGNS</h3>
 ✓ Blood Pressure: 120/80 mmHg<br />
 ✓ Heart Rate: 72 bpm<br />
 ✓ Temperature: 36.8°C<br />
 ✓ SpO₂: 99%<br />
 
 <br />
+<h3>ORAL EXAMINATION</h3>
+✓ Tooth Involved: 46 (Lower Right First Molar)<br />
+✓ Deep carious lesion with tenderness on percussion<br />
+✓ Gingival inflammation present<br />
+
+<br />
 <h3>CLINICAL ASSESSMENT</h3>
-Diagnosis: Tension Headache<br />
-ICD-10: R51<br />
-Confidence: 89%<br />
+Diagnosis: Chronic Apical Periodontitis<br />
+ICD-10: K04.5<br />
+SNOMED CT: 302810001<br />
+Confidence: High<br />
 
 <br />
 <h3>PRESCRIPTION</h3>
 {mockMedications.map((med, idx) => (
   <div key={idx}>
-    {med.drug} - {med.dose}, {med.frequency} (Indication: {med.indication})
+    {med.drug} – {med.dose}, {med.frequency}
+    <span className="italic"> (Indication: {med.indication})</span>
   </div>
 ))}
+
+
 
 </pre>
 

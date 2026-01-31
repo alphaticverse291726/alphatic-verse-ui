@@ -14,21 +14,29 @@ export default function NurseDashboard() {
     { name: "Linda George", fee: 700 },
   ];
 
-  const prescriptions = {
-    "John Doe": [
-      { drug: "Metformin 500mg", dose: "1-0-1", days: 30 },
-      { drug: "Atorvastatin 10mg", dose: "0-0-1", days: 30 },
-    ],
-    "Maria Smith": [
-      { drug: "Amlodipine 5mg", dose: "1-0-0", days: 30 },
-    ],
-    "Abdul Rahman": [
-      { drug: "Pantoprazole 40mg", dose: "1-0-0", days: 14 },
-    ],
-    "Linda George": [
-      { drug: "Levothyroxine 50mcg", dose: "1-0-0", days: 60 },
-    ],
-  };
+ const prescriptions = {
+  "John Doe": [
+    { drug: "Amoxicillin 500 mg", dose: "1-1-1", days: 5 },
+    { drug: "Ibuprofen 400 mg", dose: "1-0-1", days: 3 },
+    { drug: "Chlorhexidine Mouthwash 0.12%", dose: "Rinse BD", days: 7 },
+  ],
+
+  "Maria Smith": [
+    { drug: "Metronidazole 400 mg", dose: "1-1-1", days: 5 },
+    { drug: "Chlorhexidine Mouthwash 0.12%", dose: "Rinse BD", days: 10 },
+  ],
+
+  "Abdul Rahman": [
+    { drug: "Amoxicillin + Clavulanic Acid 625 mg", dose: "1-1-1", days: 5 },
+    { drug: "Paracetamol 650 mg", dose: "1-0-1", days: 3 },
+  ],
+
+  "Linda George": [
+    { drug: "Ibuprofen 400 mg", dose: "1-0-1", days: 3 },
+    { drug: "Lignocaine Gel 2%", dose: "Local application", days: 2 },
+    { drug: "Chlorhexidine Mouthwash 0.12%", dose: "Rinse BD", days: 7 },
+  ],
+};
 
   // ===== STATES =====
   const [selectedPatient, setSelectedPatient] = useState("");
