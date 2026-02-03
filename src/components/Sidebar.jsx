@@ -2,18 +2,18 @@ import { NavLink } from "react-router-dom";
 
 const menu = [
   { name: "Dashboard", path: "/" },
-  { name: "Summary", path: "/ehr" },
+  
+  { name: "EHR Verse", path: "/ehrverse" }, // 👈 moved here
   { name: "ADR", path: "/adr" },
   { name: "Appointments", path: "/appointments" }, // ✅ NEW
   { name: "Clinic Analytics", path: "/analytics" },
-  { name: "Nurse Dashboard", path: "/nurse-dashboard" }
-  
+  { name: "Nurse Dashboard", path: "/nurse-dashboard" },
 ];
-
 
 export default function Sidebar() {
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-black border-r border-white/10 p-6 z-50">
+      
       <h1 className="text-2xl font-bold bg-gradient-to-r from-pinkGlow to-purpleGlow bg-clip-text text-transparent">
         AlphaTIC Verse
       </h1>
@@ -27,7 +27,7 @@ export default function Sidebar() {
               `block px-4 py-3 rounded-lg transition ${
                 isActive
                   ? "bg-gradient-to-r from-pinkGlow to-purpleGlow text-black font-semibold"
-                  : "hover:bg-white/10"
+                  : "hover:bg-white/10 text-white/80"
               }`
             }
           >
@@ -35,6 +35,7 @@ export default function Sidebar() {
           </NavLink>
         ))}
       </nav>
+
     </aside>
   );
 }
