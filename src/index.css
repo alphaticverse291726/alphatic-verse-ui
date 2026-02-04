@@ -2,46 +2,114 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =========================
+   DESIGN TOKENS
+========================= */
+:root {
+  --pink-glow: rgba(255, 45, 149, 0.35);
+  --purple-glow: rgba(127, 60, 255, 0.35);
+  --blue-glow: rgba(59, 130, 246, 0.25);
+
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.12);
+}
+
+/* =========================
+   GLOBAL BASE
+========================= */
 body {
   margin: 0;
-  background: #faf6f6;
-  color: white;
+  background: radial-gradient(
+      circle at top left,
+      rgba(127, 60, 255, 0.15),
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(255, 45, 149, 0.12),
+      transparent 40%
+    ),
+    #050008;
+
+  color: #f9fafb;
   font-family: "Inter", "Segoe UI", system-ui, sans-serif;
   line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
 
-
-.glass {
-  background: rgba(248, 239, 239, 0.08);
-  backdrop-filter: blur(16px);
-  border-radius: 20px;
-}
-
+/* =========================
+   GLASS MORPHISM (CORE)
+========================= */
 .glass {
   background: linear-gradient(
     135deg,
-    rgba(255, 45, 149, 0.15),
-    rgba(127, 60, 255, 0.15)
+    rgba(255, 45, 149, 0.12),
+    rgba(127, 60, 255, 0.12),
+    rgba(59, 130, 246, 0.08)
   );
   backdrop-filter: blur(18px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  -webkit-backdrop-filter: blur(18px);
+
+  border-radius: 20px;
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
-/* index.css or a separate ehr.css */
+/* =========================
+   EHR CARDS
+========================= */
 .ehr-card {
   border-radius: 20px;
   background: linear-gradient(
     135deg,
     rgba(255, 45, 149, 0.15),
-    rgba(127, 60, 255, 0.15)
+    rgba(127, 60, 255, 0.15),
+    rgba(59, 130, 246, 0.1)
   );
-  backdrop-filter: blur(18px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  border: 1px solid var(--glass-border);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
 }
 
+/* Subtle, professional hover */
 .ehr-card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 20px rgba(255, 45, 149, 0.5),
-              0 0 40px rgba(127, 60, 255, 0.4);
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow:
+    0 0 20px var(--pink-glow),
+    0 0 30px var(--purple-glow),
+    0 0 40px var(--blue-glow);
+}
+
+/* =========================
+   TEXT READABILITY HELPERS
+========================= */
+.text-muted {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.text-soft {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* =========================
+   MOBILE OPTIMIZATION
+========================= */
+@media (max-width: 640px) {
+  body {
+    line-height: 1.5;
+  }
+
+  .glass,
+  .ehr-card {
+    border-radius: 16px;
+  }
 }
