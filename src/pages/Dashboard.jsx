@@ -175,20 +175,29 @@ export default function Dashboard() {
 
           {/* APPOINTMENTS */}
           <GlassCard title="Today's Appointments">
-            {todayAppointments.length ? (
-              <ul className="space-y-2 text-sm text-neutral-300">
-                {todayAppointments.map((appt, i) => (
-                  <li key={i} className="break-words">
-                    {appt.time
-                      ? `${appt.time} — ${appt.patient}`
-                      : `${appt.patient} (Time pending)`} 
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm text-neutral-500">No appointments scheduled today</p>
-            )}
-          </GlassCard>
+  {todayAppointments.length ? (
+    <ul className="space-y-3 text-sm text-neutral-300">
+      {todayAppointments.map((appt, i) => (
+        <li
+          key={i}
+          className="p-2 rounded-lg bg-white/5 border border-white/20"
+        >
+          <div className="font-semibold text-pink-400">
+            {appt.time} — {appt.patientName}
+          </div>
+          <div className="text-xs text-neutral-400">
+            {appt.age} yrs • {appt.gender}
+          </div>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p className="text-sm text-neutral-500">
+      No appointments scheduled today
+    </p>
+  )}
+</GlassCard>
+
 
           {/* CRITICAL PATIENTS */}
         <GlassCard title="Dental Emergency Patients">

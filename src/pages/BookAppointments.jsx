@@ -5,33 +5,32 @@ export default function BookAppointments() {
   const [year, setYear] = useState(new Date().getFullYear());
   const [selectedDate, setSelectedDate] = useState(null);
   const [appointments, setAppointments] = useState({});
-  const [time, setTime] = useState("");
-  const [selectedPatient, setSelectedPatient] = useState("");
 
-  const mockAppointments = {
-    "2026-1-5": [{ patient: "John Doe" }, { patient: "Maria Smith" }, { patient: "Ali Hassan" }],
-    "2026-1-12": [{ patient: "Abdul Rahman" }, { patient: "Chen Wei" }, { patient: "Ana Silva" }],
-    "2026-1-18": [{ patient: "Linda George" }, { patient: "Mark Lee" }, { patient: "Fatima Khan" }],
-    "2026-1-16": [{ patient: "Sophia Brown" }, { patient: "James Wilson" }, { patient: "Emma Davis" }, { patient: "Olivia Garcia" }],
-    "2026-1-31": [{ patient: "Liam Martinez" }, { patient: "Noah Anderson" }, { patient: "Ava Thomas" }, { patient: "Isabella Taylor" }, { patient: "Mia Moore" }],
-  };
+  // FORM STATES
+  const [patientName, setPatientName] = useState("");
+  const [age, setAge] = useState("");
+  const [gender, setGender] = useState("");
+  const [time, setTime] = useState("");
 
   useEffect(() => {
-    setAppointments(mockAppointments);
+    const saved = localStorage.getItem("bookedAppointments");
+    if (saved) {
+      setAppointments(JSON.parse(saved));
+    }
   }, []);
 
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstDay = new Date(year, month, 1).getDay();
 
-  const appointmentDates = Object.keys(appointments)
-    .filter((key) => {
-      const [y, m] = key.split("-");
-      return parseInt(y) === year && parseInt(m) === month + 1;
-    })
-    .map((key) => parseInt(key.split("-")[2]));
-
   const key = selectedDate ? `${year}-${month + 1}-${selectedDate}` : null;
   const todaysAppointments = key ? appointments[key] || [] : [];
+
+  const appointmentDates = Object.keys(appointments)
+    .filter((k) => {
+      const [y, m] = k.split("-");
+      return parseInt(y) === year && parseInt(m) === month + 1;
+    })
+    .map((k) => parseInt(k.split("-")[2]));
 
   const prevMonth = () => {
     if (month === 0) {
@@ -39,7 +38,6 @@ export default function BookAppointments() {
       setYear(year - 1);
     } else setMonth(month - 1);
     setSelectedDate(null);
-    setSelectedPatient("");
   };
 
   const nextMonth = () => {
@@ -48,30 +46,39 @@ export default function BookAppointments() {
       setYear(year + 1);
     } else setMonth(month + 1);
     setSelectedDate(null);
-    setSelectedPatient("");
   };
 
-  const assignTime = () => {
-    if (!selectedPatient || !time) {
-      alert("Select patient and time");
+  const addAppointment = () => {
+    if (!patientName || !age || !gender || !time) {
+      alert("Please fill all fields");
       return;
     }
 
     if (todaysAppointments.find((a) => a.time === time)) {
-      alert("Time slot already assigned for this date!");
+      alert("This time slot is already booked!");
       return;
     }
 
-    const updatedAppointments = todaysAppointments.map((a) =>
-      a.patient === selectedPatient ? { ...a, time } : a
-    );
+    const newAppointment = {
+      patientName,
+      age,
+      gender,
+      time,
+    };
 
-    const updated = { ...appointments, [key]: updatedAppointments };
+    const updated = {
+      ...appointments,
+      [key]: [...todaysAppointments, newAppointment],
+    };
+
     setAppointments(updated);
     localStorage.setItem("bookedAppointments", JSON.stringify(updated));
 
+    // Reset form
+    setPatientName("");
+    setAge("");
+    setGender("");
     setTime("");
-    setSelectedPatient("");
   };
 
   return (
@@ -105,6 +112,7 @@ export default function BookAppointments() {
             {Array.from({ length: firstDay }).map((_, i) => (
               <div key={i} />
             ))}
+
             {Array.from({ length: daysInMonth }, (_, i) => {
               const date = i + 1;
               const isSelected = selectedDate === date;
@@ -113,11 +121,7 @@ export default function BookAppointments() {
               return (
                 <div
                   key={date}
-                  onClick={() => {
-                    setSelectedDate(date);
-                    setSelectedPatient("");
-                    setTime("");
-                  }}
+                  onClick={() => setSelectedDate(date)}
                   className={`calendar-cell
                     ${isSelected ? "calendar-selected" : ""}
                     ${hasAppointment ? "calendar-appt" : ""}`}
@@ -129,64 +133,70 @@ export default function BookAppointments() {
           </div>
         </div>
 
-        {/* PATIENT LIST */}
+        {/* APPOINTMENT FORM */}
         <div className="rounded-3xl p-6 bg-white/5 backdrop-blur-2xl border border-white/20 shadow-xl">
           <h3 className="text-xl font-semibold mb-4">
             {selectedDate
-              ? `Appointments – ${selectedDate}/${month + 1}/${year}`
-              : "Select a date to view patients"}
+              ? `Book Appointment – ${selectedDate}/${month + 1}/${year}`
+              : "Select a date from calendar"}
           </h3>
 
-          {selectedDate && todaysAppointments.length > 0 ? (
-            <div className="space-y-3 mb-4">
-              {todaysAppointments.map((appt, idx) => (
-                <div
-                  key={idx}
-                  className="p-3 rounded-xl bg-white/10 backdrop-blur-xl border border-white/20 flex justify-between"
+          {selectedDate && (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                <input
+                  type="text"
+                  placeholder="Patient Name"
+                  value={patientName}
+                  onChange={(e) => setPatientName(e.target.value)}
+                  className="input"
+                />
+                <input
+                  type="number"
+                  placeholder="Age"
+                  value={age}
+                  onChange={(e) => setAge(e.target.value)}
+                  className="input"
+                />
+                <select
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value)}
+                  className="input"
                 >
-                  <span>{appt.patient}</span>
-                  <span className="opacity-70">
-                    {appt.time || "Time not assigned"}
-                  </span>
-                </div>
-              ))}
-            </div>
-          ) : selectedDate ? (
-            <p className="opacity-70 mb-4">No patients booked for this date.</p>
-          ) : null}
-
-          {selectedDate && todaysAppointments.length > 0 && (
-            <div className="flex gap-2 items-center">
-              <select
-  value={selectedPatient}
-  onChange={(e) => setSelectedPatient(e.target.value)}
-  className="p-3 rounded-lg bg-black/30 text-white flex-1 border border-purple-400/50 backdrop-blur-md appearance-none"
->
-  <option value="" className="bg-black text-white">Select Patient</option>
-  {todaysAppointments
-    .filter((a) => !a.time)
-    .map((a, idx) => (
-      <option key={idx} value={a.patient} className="bg-black text-white">
-        {a.patient}
-      </option>
-    ))}
-</select>
-
-<input
-  type="time"
-  value={time}
-  onChange={(e) => setTime(e.target.value)}
-  className="p-3 rounded-lg bg-black/30 text-white border border-purple-400/50 backdrop-blur-md appearance-none"
-/>
-
+                  <option value="">Select Gender</option>
+                  <option>Male</option>
+                  <option>Female</option>
+                  <option>Other</option>
+                </select>
+                <input
+                  type="time"
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  className="input"
+                />
+              </div>
 
               <button
-                onClick={assignTime}
-                className="px-5 py-2 rounded-lg font-semibold bg-gradient-to-r from-pink-500 to-purple-600"
+                onClick={addAppointment}
+                className="w-full py-2 rounded-lg font-semibold bg-gradient-to-r from-pink-500 to-purple-600"
               >
-                Assign
+                Add Appointment
               </button>
-            </div>
+
+              {todaysAppointments.length > 0 && (
+                <div className="mt-6 space-y-2">
+                  {todaysAppointments.map((a, i) => (
+                    <div
+                      key={i}
+                      className="p-3 rounded-xl bg-white/10 border border-white/20 flex justify-between"
+                    >
+                      <span>{a.patientName} ({a.gender}, {a.age})</span>
+                      <span className="opacity-70">{a.time}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -224,6 +234,13 @@ export default function BookAppointments() {
           border-radius: 50%;
           position: absolute;
           bottom: 6px;
+        }
+        .input {
+          padding: 12px;
+          border-radius: 12px;
+          background: rgba(0,0,0,0.3);
+          border: 1px solid rgba(168,85,247,0.5);
+          color: white;
         }
       `}</style>
     </div>
